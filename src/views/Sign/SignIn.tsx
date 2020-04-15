@@ -13,8 +13,17 @@ function SignIn() {
 
   const [form] = Form.useForm();
 
+
+
+  const signIn = (data: Object) => {
+    http.post('/sign-in', data).then(result => {
+      console.log('result', result)
+    })
+  }
+
   const onFinish = (values: Object) => {
     console.log(values);
+    signIn(values)
   };
 
   const onReset = () => {
@@ -37,10 +46,10 @@ function SignIn() {
 
         <Form className="from-view" {...layout} form={form} name="control-hooks" onFinish={onFinish}>
           <Form.Item name="account" label="Note" rules={[{ required: true, message: '请输入你的账户！' }]} >
-            <Input />
+            <Input className="from-view-input" />
           </Form.Item>
           <Form.Item name="password" label="Note" rules={[{ required: true, message: '请输入密码！' }]} >
-            <Input />
+            <Input className="from-view-input" />
           </Form.Item>
           <Form.Item>
             <Button className="sign-in-btn" htmlType="submit" type="primary">

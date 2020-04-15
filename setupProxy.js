@@ -1,22 +1,11 @@
-const proxy = require('http-proxy-middleware')
-
+const { createProxyMiddleware } = require('http-proxy-middleware');
 module.exports = function (app) {
+  console.log("Setting up proxy url's on development server");
   app.use(
-    proxy('/api-admin/v1', {
+    '/api-admin/v1',
+    createProxyMiddleware({
       target: 'http://localhost:8086/',
-      secure: false,
-      changeOrigin: true
-    }),
-
-    proxy('/default', {
-      target: 'http://localhost:8086/',
-      secure: false,
-      changeOrigin: true
-    }),
-    proxy('/upload', {
-      target: 'http://localhost:8086/',
-      secure: false,
-      changeOrigin: true
+      changeOrigin: true,
     })
-  )
-}
+  );
+};
