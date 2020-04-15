@@ -1,24 +1,45 @@
 import React from 'react';
-import logo from './logo.svg';
+import {
+  useRoutes
+} from 'react-router-dom';
+import Home from './views/Home/Index'
+
 import './App.css';
 
-function App() {
+
+const App = () => {
+  let element = useRoutes([
+    // These are the same as the props you provide to <Route>
+    { path: '/', element: <Home /> },
+    { path: 'dashboard', element: <Users /> },
+    {
+      path: 'invoices',
+      element: <Users />,
+      // Nested routes use a children property, which is also
+      // the same as <Route>
+      children: [
+        { path: ':id', element: <Users /> },
+        { path: 'sent', element: <Users /> }
+      ]
+    },
+    // Not found routes work as you'd expect
+    { path: '*', element: <Users /> }
+  ]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <>
+      {element}
+    </>
+  )
+}
+
+function Users() {
+  return (
+    <div>
+      <nav>
+        user
+      </nav>
+
+
     </div>
   );
 }
