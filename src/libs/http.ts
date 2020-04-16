@@ -26,7 +26,7 @@ http.interceptors.response.use(
   response => {
     const data = response.data
 
-    if (!data.is_login) {
+    if (data.state === 'nologin') {
       message.warning(data.message);
       // windows.location.replace('#/sign_in')
       return false
@@ -34,14 +34,14 @@ http.interceptors.response.use(
 
     if (data.state === 'error') {
       message.warning(data.message)
-      return Promise.reject(new Error(data.message))
+      return Promise.reject(data.message)
     } else {
-      return data.data
+      return data
     }
   },
   function (error) {
     message.warning('服务器正忙，请稍后重试!')
-    return Promise.reject('')
+    return Promise.reject(error.message)
   }
 )
 

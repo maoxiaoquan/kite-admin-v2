@@ -15,35 +15,12 @@
     background-color: #fff;
     margin-top: -15px;
     transform: translate(-50%, -50%);
-    -webkit-transform: translate(-50%, -50%);
-    .title {
-      text-align: center;
-      padding: 20px 0;
-      color: #fff;
-      font-size: 14px;
-      font-weight: bold;
-    }
-    .admin-sign-in-header {
-      text-align: center;
-      padding: 30px 25px 10px;
-    }
-    .from-view {
-      padding: 10px 45px 30px;
-      .from-view-input {
-        .ant-input {
-          border-radius: 30px;
-          height: 45px;
-        }
-      }
-    }
+    -webkit-transform: translate(-50%, -50%); 
   }
   .sign-in-btn {
     width: 100%;
     margin: 10px 0 5px;
     border-radius: 30px;
     height: 45px;
-  }
-  .font-co1 {
-    color: #b5b5b6;
   }
 }
