@@ -4,8 +4,9 @@ import {
 } from 'react-router-dom';
 
 
-import Home from './views/Home/Index'
-const SignIn = lazy(() => import(/* webpackChunkName: "signIn" */ './views/Sign/SignIn'))
+import Home from '@views/Home/Index'
+import Manager from '@views/Manager'
+const SignIn = lazy(() => import(/* webpackChunkName: "signIn" */ '@views/Sign/SignIn'))
 
 
 const App = () => {
@@ -16,8 +17,8 @@ const App = () => {
         { path: '/', element: <Home /> },
         { path: '/sign-in', element: <Suspense fallback={<div>Loading</div>}><SignIn /></Suspense> },
         {
-          path: 'invoices',
-          element: <Home />,
+          path: 'manager',
+          element: <Manager />,
           // Nested routes use a children property, which is also
           // the same as <Route>
           children: [

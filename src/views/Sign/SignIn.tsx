@@ -9,13 +9,12 @@ import http from '@libs/http'
 const layout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },
-};
+}
 
 interface signIn {
   account: string;
   password: string;
 }
-
 
 function SignIn() {
 
