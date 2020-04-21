@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Form, Input, Button } from 'antd'
 import { UserOutlined, LockFilled } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import './SignIn.scss'
-import http from '@libs/http'
 
+import http from '@libs/http'
+import { Outlet } from "react-router-dom";
 
 const layout = {
   labelCol: { span: 8 },
@@ -35,6 +35,8 @@ function SignIn() {
     signIn(values)
   };
 
+
+
   return (
     <div id="admin-sign-in">
       <div className="admin-sign-in-view">
@@ -42,19 +44,7 @@ function SignIn() {
           <h2>Admin</h2>
         </div>
 
-        <Form className="from-view" {...layout} form={form} name="control-hooks" onFinish={onFinish}>
-          <Form.Item name="account" rules={[{ required: true, message: '请输入你的账户！' }]} >
-            <Input className="from-view-input" prefix={<UserOutlined />} />
-          </Form.Item>
-          <Form.Item name="password" rules={[{ required: true, message: '请输入密码！' }]} >
-            <Input.Password className="from-view-input" prefix={<LockFilled />} />
-          </Form.Item>
-          <Form.Item>
-            <Button className="sign-in-btn" htmlType="submit" type="primary">
-              登录
-              </Button>
-          </Form.Item>
-        </Form>
+        <Outlet />
       </div>
     </div>
   );

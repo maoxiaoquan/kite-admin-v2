@@ -1,22 +1,17 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { withRouter } from 'react-router-dom'
+
+
 import {
   Menu,
   Icon,
-  Row,
-  Col,
   Avatar,
-  Progress,
-  Dropdown,
-  Input,
   Layout
 } from 'antd'
 import './header.scss'
-import { getAdminIndexStatistics } from '../../containers/Index/actions'
+
 
 const SubMenu = Menu.SubMenu
-const MenuItemGroup = Menu.ItemGroup
+
 
 const menu = (
   <Menu>
@@ -37,14 +32,11 @@ const menu = (
   </Menu>
 )
 
-@withRouter
-@connect(({ stateTitle, stateMange }) => ({
-  stateTitle,
-  stateMange
-}))
+
 class Header extends Component {
   state = {
-    current: ''
+    current: '',
+    stateMange: { user: {} }
   }
 
   topMenuClick = e => {
@@ -62,8 +54,10 @@ class Header extends Component {
     const {
       collapsed,
       onCollapseChange,
-      stateMange: { user = {} }
     } = this.props
+    const {
+      stateMange: { user = {} }
+    } = this.state
     return (
       <Layout.Header
         className={{

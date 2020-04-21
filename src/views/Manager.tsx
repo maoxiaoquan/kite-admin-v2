@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 import { Layout, Drawer } from 'antd'
-import { BrowserRouter, Routes, Route, Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Header from './Parts/Header' // 头部
 import Aside from './Parts/Aside' // 侧栏
 
@@ -76,7 +76,7 @@ class Manager extends PureComponent {
           <Content className="admin-content">
             <Outlet />
             <Footer style={{ textAlign: 'center' }}>
-              <a href="https://github.com/maoxiaoquan/kite" target="_blank">
+              <a href="https://github.com/maoxiaoquan/kite">
                 Kite
               </a>
               ©2019

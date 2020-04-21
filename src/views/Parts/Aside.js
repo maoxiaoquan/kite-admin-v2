@@ -1,22 +1,23 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Menu, Layout, Icon } from 'antd'
+import { Menu, Layout, } from 'antd'
 import { enquireScreen, unenquireScreen } from 'enquire-js'
 import { BrowserRouter as Link } from 'react-router-dom'
-import ScrollBar from '../ScrollBar'
-
+import ScrollBar from '@components/ScrollBar'
+import Icon from '@ant-design/icons';
 import './aside.scss'
-import { getAdminUserInfo } from '../../stores/actions'
 
-const { Header, Content, Footer, Sider } = Layout
+
 const SubMenu = Menu.SubMenu
-const MenuItemGroup = Menu.ItemGroup
+
 
 class Aside extends Component {
   // submenu keys of first level
   state = {
     openKeys: ['web'],
     isMobile: false,
+    stateMange: {
+      asideList: []
+    },
     aside_list: [
       {
         title: '主页',
@@ -223,8 +224,8 @@ class Aside extends Component {
   }
 
   render () {
-    const { aside_list = [], isMobile } = this.state
-    const { collapsed, onCollapseChange, stateMange } = this.props
+    const { aside_list = [], isMobile, stateMange } = this.state
+    const { collapsed, onCollapseChange } = this.props
     return (
       <Layout.Sider
         breakpoint="lg"
@@ -242,7 +243,7 @@ class Aside extends Component {
             <Link className="admin-logo-view" to="/manager/index">
               <Icon type="heat-map" className="login-icon" />
               <span className="logo-text">
-                {stateMange.website && stateMange.website.website_name}
+                6666
               </span>
             </Link>
           </div>
@@ -281,7 +282,7 @@ class Aside extends Component {
                     return (
                       <Menu.Item key={item.key}>
                         <Link to={item.link}>
-                          {item.icon ? <Icon type={item.icon} /> : ''}
+                          {item.icon ? <Icon component={item.icon} /> : ''}
                           <span>{item.title}</span>
                         </Link>
                       </Menu.Item>
@@ -329,4 +330,4 @@ class Aside extends Component {
   }
 }
 
-export default connect(({ stateMange }) => ({ stateMange }))(Aside)
+export default Aside
