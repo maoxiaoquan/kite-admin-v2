@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Menu, Layout, } from 'antd'
 import { Link } from 'react-router-dom'
 import ScrollBar from '@components/ScrollBar'
-import { PieChartOutlined } from '@ant-design/icons';
+import { PieChartOutlined, HeatMapOutlined } from '@ant-design/icons';
 import './aside.scss'
 
 
@@ -200,7 +200,7 @@ const Aside = (props: any) => {
     }
   }
 
-  const { collapsed, onCollapseChange, allAuthorityNameId } = props
+  const { collapsed, onCollapseChange, allAuthorityNameId, website } = props
 
   console.log('allAuthorityNameId', allAuthorityNameId)
 
@@ -219,18 +219,16 @@ const Aside = (props: any) => {
       <div className="admin-aside-menu-view">
         <div className="admin-aside-header">
           <Link className="admin-logo-view" to="/manager/index">
-            <PieChartOutlined className="login-icon" />
+            <HeatMapOutlined className="login-icon" />
             <span className="logo-text">
-              6666
+              {website.website_name}
             </span>
           </Link>
         </div>
 
         <div className="admin-aside-content clearfix">
           <ScrollBar
-            option={{
-              suppressScrollX: true
-            }}
+            option={{ suppressScrollX: true }}
           >
             <Menu
               defaultOpenKeys={['web']}

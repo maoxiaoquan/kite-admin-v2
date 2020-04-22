@@ -19,6 +19,8 @@ const Manager = () => {
   const [collapsed, setCollapsed] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [allAuthorityNameId, setAllAuthorityNameId] = useState([''])
+  const [adminUserInfo, setAdminUserInfo] = useState({})
+  const [website, setWebsite] = useState({})
 
 
   useEffect(() => {
@@ -32,19 +34,23 @@ const Manager = () => {
   const getAdminUserInfo = () => { // 获取后台相关信息
     http.post('/admin-user/info')
       .then((result: any) => {
-        setAllAuthorityNameId(result.data.allAuthorityNameId || {})
+        setAdminUserInfo(result.data.adminUserInfo || {})
+        setWebsite(result.data.website || {})
+        setAllAuthorityNameId(result.data.allAuthorityNameId || [])
       })
   }
 
   const asideProps = {
     collapsed,
     onCollapseChange: toggle,
-    allAuthorityNameId
+    allAuthorityNameId,
+    website
   }
 
   const headerProps = {
     collapsed,
-    onCollapseChange: toggle
+    onCollapseChange: toggle,
+    adminUserInfo
   }
 
   return (

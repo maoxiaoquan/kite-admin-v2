@@ -35,6 +35,7 @@ const HeaderBox = (props: any) => {
   const {
     collapsed,
     onCollapseChange,
+    adminUserInfo
   } = props
 
 
@@ -56,10 +57,10 @@ const HeaderBox = (props: any) => {
             <SubMenu
               title={
                 <div className="personal">
-                  <Avatar src={user.avatar} />
+                  <Avatar src={adminUserInfo.avatar} />
                   <div className="personal-info">
-                    <span className="name">{user.nickname}</span>
-                    <span className="role">{user.account}</span>
+                    <span className="name">{adminUserInfo.nickname}</span>
+                    <span className="role">{adminUserInfo.account}</span>
                   </div>
                 </div>
               }
