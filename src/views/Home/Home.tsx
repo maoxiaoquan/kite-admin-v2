@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Row, Col, List, Avatar, Breadcrumb } from 'antd'
-import Icon from '@ant-design/icons';
+import { HomeOutlined, BarChartOutlined } from '@ant-design/icons';
 import './index.scss'
 import http from '@libs/http'
 
@@ -25,12 +25,10 @@ const Home = () => {
     count: 0,
     dynamicCommentCount: 0,
     dynamicCount: 0,
-    new_article: 0,
-    new_comment: 0,
-    new_user: 0,
+    new_article: [],
+    new_comment: [],
+    new_user: [],
   });
-
-
 
 
   const [sexs] = useState([
@@ -38,8 +36,6 @@ const Home = () => {
     '男',
     '女'
   ]);
-
-
 
   useEffect(() => {
     http.get('/admin-index/statistics')
@@ -53,13 +49,14 @@ const Home = () => {
       <div className="layout-main-title">
         <Breadcrumb>
           <Breadcrumb.Item href="#/manager/index">
-            <Icon type="home" />
+            <HomeOutlined />
           </Breadcrumb.Item>
           <Breadcrumb.Item href="#/manager/index">
             <span>主页</span>
           </Breadcrumb.Item>
           <Breadcrumb.Item>仪表盘</Breadcrumb.Item>
         </Breadcrumb>
+
       </div>
 
       <div className="layout-statistics">
@@ -69,10 +66,7 @@ const Home = () => {
               <div className="card separate-card">
                 <div className="card-body">
                   <div className="float-right">
-                    <Icon
-                      type="file-text"
-                      className="big-widget-icon text-danger"
-                    />
+                    <BarChartOutlined className="big-widget-icon text-danger" />
                   </div>
                   <h5
                     className="text-muted font-weight-normal mt-0"
@@ -92,10 +86,7 @@ const Home = () => {
               <div className="card separate-card">
                 <div className="card-body">
                   <div className="float-right">
-                    <Icon
-                      type="message"
-                      className="big-widget-icon text-primary"
-                    />
+                    <BarChartOutlined className="big-widget-icon text-primary" />
                   </div>
                   <h5
                     className="text-muted font-weight-normal mt-0"
@@ -117,7 +108,7 @@ const Home = () => {
               <div className="card  separate-card">
                 <div className="card-body">
                   <div className="float-right">
-                    <Icon type="read" className="big-widget-icon text-info" />
+                    <BarChartOutlined className="big-widget-icon text-info" />
                   </div>
                   <h5
                     className="text-muted font-weight-normal mt-0"
@@ -139,10 +130,7 @@ const Home = () => {
               <div className="card  separate-card">
                 <div className="card-body">
                   <div className="float-right">
-                    <Icon
-                      type="user"
-                      className="big-widget-icon text-primary"
-                    />
+                    <BarChartOutlined className="big-widget-icon text-primary" />
                   </div>
                   <h5
                     className="text-muted font-weight-normal mt-0"
@@ -167,7 +155,7 @@ const Home = () => {
                 <div className="xsb-card  separate-card">
                   <div className="xsb-card-body">
                     <div className="float-right">
-                      <Icon type="read" className="widget-icon" />
+                      <BarChartOutlined className="widget-icon" />
                     </div>
                     <h5
                       className="text-muted font-weight-normal mt-0"
@@ -191,7 +179,7 @@ const Home = () => {
                 <div className="xsb-card  separate-card">
                   <div className="xsb-card-body">
                     <div className="float-right">
-                      <Icon type="read" className="widget-icon" />
+                      <BarChartOutlined className="widget-icon" />
                     </div>
                     <h5
                       className="text-muted font-weight-normal mt-0"
@@ -211,7 +199,7 @@ const Home = () => {
                 <div className="xsb-card separate-card">
                   <div className="xsb-card-body">
                     <div className="float-right">
-                      <Icon type="file-text" className="widget-icon" />
+                      <BarChartOutlined className="widget-icon" />
                     </div>
                     <h5
                       className="text-muted font-weight-normal mt-0"
@@ -233,7 +221,7 @@ const Home = () => {
                 <div className="xsb-card separate-card">
                   <div className="xsb-card-body">
                     <div className="float-right">
-                      <Icon type="message" className="widget-icon" />
+                      <BarChartOutlined className="widget-icon" />
                     </div>
                     <h5
                       className="text-muted font-weight-normal mt-0"

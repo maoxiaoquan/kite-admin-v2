@@ -5,7 +5,8 @@ import {
 } from 'react-router-dom';
 
 
-import Home from '@views/Home/Index'
+import Index from '@views/Index/Index'
+import Home from '@views/Home/Home'
 import Manager from '@views/Manager'
 import Demo1 from '@views/Demo/Demo1'
 import Demo2 from '@views/Demo/Demo2'
@@ -16,18 +17,18 @@ const App = () => {
   return (
     <>
       {useRoutes([
-        { path: '/', element: <Demo3 /> },
+        { path: '/', element: <Index /> },
         // These are the same as the props you provide to <Route>
         { path: '/sign-in', element: <Suspense fallback={<div>Loading</div>}><SignIn /></Suspense> },
         // 重定向
         // { path: '/', redirectTo: 'demo' },
         {
-          path: '',
-          element: <Demo1 />,
+          path: 'manager',
+          element: <Manager />,
           // Nested routes use a children property, which is also
           // the same as <Route>
           children: [
-            { path: 'demo2', element: <Demo3 /> },
+            { path: 'index', element: <Home /> },
             { path: 'demo', element: <Demo2 /> },
           ]
         },

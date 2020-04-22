@@ -1,91 +1,102 @@
-import React, { PureComponent } from 'react'
-import { Layout, Drawer } from 'antd'
-import { Outlet } from "react-router-dom";
-import Header from './Parts/Header' // 头部
-import Aside from './Parts/Aside' // 侧栏
+import React, { useState, useEffect } from 'react'
+import { Layout, Drawer } from 'antd';
+import {
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
+  UserOutlined,
+  VideoCameraOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
+import { Outlet } from 'react-router-dom';
+import Header from '@views/Parts/Header'
+import Aside from '@views/Parts/Aside'
+import http from '@libs/http'
 
-const { Content, Footer } = Layout
+const { Sider, Content, Footer } = Layout; // 头部
 
-class Manager extends PureComponent {
-  state = {
-    isMobile: false,
-    collapsed: false
-  }
+const Manager = () => {
 
-  isMobileFn() {
-    const userAgent = navigator.userAgent;
-    return userAgent.match(/(iPhone|iPod|Android|ios|iPad|AppleWebKit.*Mobile.*)/i);
-  }
+  const [collapsed, setCollapsed] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [allAuthorityNameId, setAllAuthorityNameId] = useState([''])
 
-  componentDidMount() {
-    if (this.isMobileFn()) {
-      this.setState({
-        isMobile: true
+  const toggle = (collapsed: any) => {
+    setCollapsed(!collapsed)
+  };
+
+  const getAdminUserInfo = () => {
+    http.post('/admin-user/info')
+      .then((result: any) => {
+        setAllAuthorityNameId(result.data.allAuthorityNameId)
       })
-    }
+  }
+
+  useEffect(() => {
+    getAdminUserInfo()
+  }, [])
+
+  const asideProps = {
+    collapsed,
+    onCollapseChange: toggle,
+    allAuthorityNameId
+  }
+
+  const headerProps = {
+    collapsed,
+    onCollapseChange: toggle
   }
 
 
-  onCollapseChange = (collapsed: Boolean) => {
-    this.setState({
-      collapsed
-    })
-  }
-
-  render() {
-    const { collapsed, isMobile } = this.state
-
-    const asideProps = {
-      collapsed,
-      onCollapseChange: this.onCollapseChange
-    }
-
-    const headerProps = {
-      collapsed,
-      onCollapseChange: this.onCollapseChange
-    }
-
-    return (
-      <Layout className="admin-manager">
-        {isMobile ? (
-          <Drawer
-            maskClosable
-            placement="left"
-            closable={false}
-            onClose={this.onCollapseChange.bind(this, !collapsed)}
-            visible={!collapsed}
-            width={200}
-            style={{
-              padding: 0,
-              height: '100vh'
+  return (
+    <Layout>
+      {isMobile ? (
+        <Drawer
+          maskClosable
+          placement="left"
+          closable={false}
+          onClose={() => { toggle(!collapsed) }}
+          visible={!collapsed}
+          width={200}
+          style={{
+            padding: 0,
+            height: '100vh'
+          }}
+        >
+          <Aside
+            {...{
+              ...asideProps,
+              collapsed: false,
+              onCollapseChange: () => { }
             }}
-          >
-            <Aside
-              {...{
-                ...asideProps,
-                collapsed: false,
-                onCollapseChange: () => { }
-              }}
-            />
-          </Drawer>
-        ) : (
-            <Aside {...asideProps} />
-          )}
-        <Layout className="admin-wrapper">
-          <Header {...headerProps} />
-          <Content className="admin-content">
-            <Outlet />
-            <Footer style={{ textAlign: 'center' }}>
-              <a href="https://github.com/maoxiaoquan/kite">
-                Kite
+          />
+        </Drawer>
+      ) : (
+          <Aside {...asideProps} />
+        )}
+      <Layout className="admin-wrapper">
+        <Header {...headerProps} />
+        <Content
+          className="admin-content"
+          style={{
+            margin: '24px 16px',
+            padding: 24,
+            minHeight: 280,
+          }}
+        >
+          <Outlet />
+
+          <Footer style={{ textAlign: 'center' }}>
+            <a href="https://github.com/maoxiaoquan/kite" target="_blank">
+              Kite
               </a>
               ©2019
-            </Footer>
-          </Content>
-        </Layout>
+          </Footer>
+        </Content>
       </Layout>
-    )
-  }
+    </Layout>
+  );
 }
+
+
 
 export default Manager

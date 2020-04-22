@@ -23,7 +23,6 @@ function SignIn() {
 
   const signIn = (data: signIn) => {
     http.post('/sign-in', data).then((result: any) => {
-      console.log('result', result)
       if (result.state === 'success') {
         localStorage.box_tokens = result.token
         navigate('/')

@@ -12,8 +12,8 @@ const http = axios.create({
 /* 稳定背后的代价，是我们在消耗自己未来的可能性。 */
 
 http.interceptors.request.use(config => {
-  if (localStorage.box_tokens) {
-    config.headers['x-access-token'] = localStorage.box_tokens
+  if (localStorage.kiteToken) {
+    config.headers['x-access-token'] = localStorage.kiteToken || ''
   }
   /* if (config.method === 'post') {
     const data = config.data || {}
@@ -25,10 +25,10 @@ http.interceptors.request.use(config => {
 http.interceptors.response.use(
   response => {
     const data = response.data
-
+    const win: any = window;
     if (data.state === 'nologin') {
       message.warning(data.message);
-      // windows.location.replace('#/sign_in')
+      win.location.replace('/sign-in')
       return false
     }
 
