@@ -20,20 +20,21 @@ const Manager = () => {
   const [isMobile, setIsMobile] = useState(false)
   const [allAuthorityNameId, setAllAuthorityNameId] = useState([''])
 
-  const toggle = (collapsed: any) => {
-    setCollapsed(!collapsed)
-  };
-
-  const getAdminUserInfo = () => {
-    http.post('/admin-user/info')
-      .then((result: any) => {
-        setAllAuthorityNameId(result.data.allAuthorityNameId)
-      })
-  }
 
   useEffect(() => {
     getAdminUserInfo()
   }, [])
+
+  const toggle = (collapsed: any) => {
+    setCollapsed(!collapsed)
+  };
+
+  const getAdminUserInfo = () => { // 获取后台相关信息
+    http.post('/admin-user/info')
+      .then((result: any) => {
+        setAllAuthorityNameId(result.data.allAuthorityNameId || {})
+      })
+  }
 
   const asideProps = {
     collapsed,
@@ -46,9 +47,8 @@ const Manager = () => {
     onCollapseChange: toggle
   }
 
-
   return (
-    <Layout>
+    <Layout className="admin-manager">
       {isMobile ? (
         <Drawer
           maskClosable
@@ -89,7 +89,7 @@ const Manager = () => {
             <a href="https://github.com/maoxiaoquan/kite" target="_blank">
               Kite
               </a>
-              ©2019
+              ©2020
           </Footer>
         </Content>
       </Layout>
