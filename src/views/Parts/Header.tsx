@@ -15,12 +15,7 @@ const { Header } = Layout
 const HeaderBox = (props: any) => {
 
   const [current, setCurrent] = useState()
-  const [user, setUser] = useState({
-    avatar: '',
-    nickname: '',
-    account: '',
-  })
-
+  const [collapsed] = useState(props.collapsed)
   const topMenuClick = (e: any) => {
     setCurrent(e.key)
   }
@@ -31,9 +26,7 @@ const HeaderBox = (props: any) => {
     navigate('/sign-in')
   }
 
-
   const {
-    collapsed,
     onCollapseChange,
     adminUserInfo
   } = props

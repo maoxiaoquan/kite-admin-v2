@@ -27,8 +27,9 @@ const Manager = () => {
     getAdminUserInfo()
   }, [])
 
-  const toggle = (collapsed: any) => {
-    setCollapsed(!collapsed)
+  const toggle = (val: any) => {
+    setCollapsed(val)
+    console.log(collapsed)
   };
 
   const getAdminUserInfo = () => { // 获取后台相关信息
@@ -76,9 +77,7 @@ const Manager = () => {
             }}
           />
         </Drawer>
-      ) : (
-          <Aside {...asideProps} />
-        )}
+      ) : (<Aside {...asideProps} />)}
       <Layout className="admin-wrapper">
         <Header {...headerProps} />
         <Content

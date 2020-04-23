@@ -188,7 +188,7 @@ const Aside = (props: any) => {
   ])
   const [isMobile, setIsMobile] = useState(false)
   const [openKeys, setOpenKeys] = useState(['web'])
-
+  const [collapsed] = useState(props.collapsed)
   const onOpenChange = (openKeys: any) => {
     const latestOpenKey = openKeys.find(
       (key: any) => openKeys.indexOf(key) === -1
@@ -200,15 +200,13 @@ const Aside = (props: any) => {
     }
   }
 
-  const { collapsed, onCollapseChange, allAuthorityNameId, website } = props
-
-  console.log('allAuthorityNameId', allAuthorityNameId)
+  const { onCollapseChange, allAuthorityNameId, website } = props
 
   return (
     <Layout.Sider
       breakpoint="lg"
-      trigger={null}
       width={isMobile ? 200 : 256}
+      trigger={null}
       collapsible
       collapsed={collapsed}
       onCollapse={(collapsed, type) => {
