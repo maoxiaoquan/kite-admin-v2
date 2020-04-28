@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Menu, Layout, } from 'antd'
 import { Link } from 'react-router-dom'
 import ScrollBar from '@components/ScrollBar'
-import { PieChartOutlined, HeatMapOutlined } from '@ant-design/icons';
+import { PieChartOutlined, HeatMapOutlined, BarChartOutlined } from '@ant-design/icons';
 import './aside.scss'
 
 
@@ -188,7 +188,12 @@ const Aside = (props: any) => {
   ])
   const [isMobile, setIsMobile] = useState(false)
   const [openKeys, setOpenKeys] = useState(['web'])
-  const [collapsed] = useState(props.collapsed)
+  const [collapsed, setCollapsed] = useState(props.collapsed)
+
+  useEffect(() => {
+    setCollapsed(props.collapsed)
+  }, [props.collapsed])
+
   const onOpenChange = (openKeys: any) => {
     const latestOpenKey = openKeys.find(
       (key: any) => openKeys.indexOf(key) === -1
@@ -236,7 +241,8 @@ const Aside = (props: any) => {
               mode="inline"
             >
               <Menu.Item>
-                <Link to="#">
+                <Link to="/manager/index">
+                  <BarChartOutlined />
                   <span>NAVIGATION</span>
                 </Link>
               </Menu.Item>

@@ -12,7 +12,7 @@ import Header from '@views/Parts/Header'
 import Aside from '@views/Parts/Aside'
 import http from '@libs/http'
 
-const { Sider, Content, Footer } = Layout; // 头部
+const { Content, Footer } = Layout; // 头部
 
 const Manager = () => {
 

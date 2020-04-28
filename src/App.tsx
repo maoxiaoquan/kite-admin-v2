@@ -1,16 +1,12 @@
 import React, { lazy, Suspense } from 'react';
 import {
-  useRoutes,
-  Redirect
+  useRoutes
 } from 'react-router-dom';
-
 
 import Index from '@views/Index/Index'
 import Home from '@views/Home/Home'
 import Manager from '@views/Manager'
-import Demo1 from '@views/Demo/Demo1'
-import Demo2 from '@views/Demo/Demo2'
-import Demo3 from '@views/Demo/Demo3'
+
 const SignIn = lazy(() => import(/* webpackChunkName: "signIn" */ '@views/Sign/SignIn'))
 
 const App = () => {
@@ -28,8 +24,7 @@ const App = () => {
           // Nested routes use a children property, which is also
           // the same as <Route>
           children: [
-            { path: 'index', element: <Home /> },
-            { path: 'demo', element: <Demo2 /> },
+            { path: 'index', element: <Home /> }
           ]
         },
         //  { path: '/', redirectTo: '/demo' },

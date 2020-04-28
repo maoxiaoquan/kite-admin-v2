@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Menu,
   Avatar,
@@ -7,7 +7,7 @@ import {
 } from 'antd'
 import './header.scss'
 import { useNavigate } from 'react-router-dom';
-import Icon, { HomeOutlined } from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 const SubMenu = Menu.SubMenu
 
 const { Header } = Layout
@@ -15,10 +15,16 @@ const { Header } = Layout
 const HeaderBox = (props: any) => {
 
   const [current, setCurrent] = useState()
-  const [collapsed] = useState(props.collapsed)
+  const [collapsed, setCollapsed] = useState(props.collapsed)
+
+  useEffect(() => {
+    setCollapsed(props.collapsed)
+  }, [props.collapsed])
+
   const topMenuClick = (e: any) => {
     setCurrent(e.key)
   }
+
   let navigate = useNavigate();
 
   const escLogin = () => {
@@ -34,11 +40,11 @@ const HeaderBox = (props: any) => {
 
   return (
     <Header
-      className={`k-header ${collapsed}`}
+      className={`k-header ${collapsed ? 'collapsed' : ''}`}
     >
       <div className="clearfix">
         <div className="pull-left">
-          <Button onClick={() => onCollapseChange(!collapsed)} icon={collapsed ? <HomeOutlined /> : <HomeOutlined />}></Button>
+          <Button onClick={() => onCollapseChange(!collapsed)} icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}></Button>
         </div>
         <div className="pull-right">
           <Menu
