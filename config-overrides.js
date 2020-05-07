@@ -11,6 +11,7 @@ module.exports = override(
     "@": path.resolve(__dirname, "src"),
     "@libs": path.resolve(__dirname, "src/libs"),
     "@views": path.resolve(__dirname, "src/views"),
+    "@utils": path.resolve(__dirname, "src/utils"),
     "@components": path.resolve(__dirname, "src/components")
   }),
   addDecoratorsLegacy()

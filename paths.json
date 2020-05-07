@@ -11,6 +11,9 @@
       "@views/*": [
         "views/*"
       ],
+      "@utils/*": [
+        "utils/*"
+      ],
       "@components/*": [
         "components/*"
       ]

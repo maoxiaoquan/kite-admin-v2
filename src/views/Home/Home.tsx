@@ -18,7 +18,7 @@ const Home = () => {
     new_user: any;
   }
 
-  const [statistics] = useState<Statistics>({
+  const [statistics, setStatistics] = useState<Statistics>({
     articleBlogCount: 0,
     articleCommentCount: 0,
     articleCount: 0,
@@ -39,8 +39,8 @@ const Home = () => {
 
   useEffect(() => {
     http.get('/admin-index/statistics')
-      .then((res) => {
-
+      .then((result) => {
+        setStatistics(result.data)
       })
   }, [])
 
