@@ -6,7 +6,8 @@ import http from '@libs/http'
 import {
   statusList,
   statusListText,
-  articleTypeText
+  articleTypeText,
+  otherStatusListText
 } from '@utils/constant'
 const Option = Select.Option
 const confirm = Modal.confirm
@@ -18,7 +19,7 @@ interface editArticleInfo {
   type: String
 }
 
-const Article = () => {
+const Book = () => {
 
   const layout = {
     labelCol: { span: 8 },
@@ -29,9 +30,6 @@ const Article = () => {
   };
   const [titleVal, setTitleVal] = useState('')
   const [statusVal, setStatusVal] = useState('')
-  const [typeVal, setTypeVal] = useState('')
-  const [sourceVal, setSourceVal] = useState('')
-  const [sourceList] = useState(['', '原创', '转载'])
   const [tableList, setTableList] = useState([])
   const [articleTagAll, setArticleTagAll] = useState([])
   const [pagination, setPagination] = useState({
@@ -70,15 +68,28 @@ const Article = () => {
       )
     },
     {
-      title: '标题',
+      title: '所属小书',
+      dataIndex: 'books_id',
+      key: 'books_id',
+      render: (text: any, record: any) => (
+        <a
+          className="book-title"
+          target="_blank"
+          href={`/book/${record.books_id}`}
+        >
+          {record.books ? record.books.title : '-'}
+        </a>
+      )
+    },
+    {
+      title: '小书章节标题',
       dataIndex: 'title',
       key: 'title',
       render: (text: any, record: any) => (
         <a
-          className="article-title"
-          target="tag"
-          rel="chapter"
-          href={`/p/${record.aid}`}
+          className="book-title"
+          target="_blank"
+          href={`/book/${record.books_id}/section/${record.book_id}`}
         >
           {record.title}
         </a>
@@ -90,33 +101,6 @@ const Article = () => {
       key: 'excerpt'
     },
     {
-      title: '所属标签',
-      dataIndex: 'tag_ids',
-      key: 'tag_ids',
-      render: (value: any, record: any) => {
-        return (
-          <div className="table-article-tag-view">
-            {articleTagAll.map((item: any, key: any) => {
-              let tags = record.tag_ids.split(',')
-              return tags.map((childItem: any, childKey: any) => {
-                if (item.tag_id === childItem) {
-                  return (
-                    <Tag
-                      className="table-article-tag-list"
-                      key={childKey}
-                      color="orange"
-                    >
-                      {item.name}
-                    </Tag>
-                  )
-                }
-              })
-            })}
-          </div>
-        )
-      }
-    },
-    {
       title: '创建时间',
       dataIndex: 'create_dt',
       key: 'create_dt'
@@ -126,40 +110,18 @@ const Article = () => {
       dataIndex: 'status',
       key: 'status',
       render: (text: any, record: any) => (
-        <Tag className="table-article-tag-list" color="orange">
-          {statusListText[record.status]}
+        <Tag className="table-book-tag-list" color="orange">
+          {otherStatusListText[record.status]}
         </Tag>
       )
-    },
-    {
-      title: '类型',
-      dataIndex: 'type',
-      key: 'type',
-      render: (text: any, record: any) => (
-        <Tag className="table-article-tag-list" color="red">
-          {articleTypeText[record.type]}
-        </Tag>
-      )
-    },
-    {
-      title: '来源',
-      dataIndex: 'source',
-      key: 'source',
-      render: (text: any, record: any) => {
-        return (
-          <Tag className="table-article-tag-list" color="red">
-            {sourceList[Number(record.source)]}
-          </Tag>
-        )
-      }
     },
     {
       title: '阅读数',
       dataIndex: 'read_count',
       key: 'read_count',
       render: (text: any, record: any) => (
-        <Tag className="table-article-tag-list" color="green">
-          {record.read_count}
+        <Tag className="table-book-tag-list" color="green">
+          {record.read_count || 0}
         </Tag>
       )
     },
@@ -168,8 +130,8 @@ const Article = () => {
       dataIndex: 'comment_count',
       key: 'comment_count',
       render: (text: any, record: any) => (
-        <Tag className="table-article-tag-list" color="green">
-          {record.comment_count}
+        <Tag className="table-book-tag-list" color="green">
+          {record.commentCount}
         </Tag>
       )
     },
@@ -179,7 +141,7 @@ const Article = () => {
       key: 'rejection_reason',
       render: (text: any, record: any) => (
         <div>
-          {Number(record.status) === statusList.reviewFail
+          {record.status == statusList.reviewFail
             ? record.rejection_reason
             : ''}
         </div>
@@ -216,26 +178,24 @@ const Article = () => {
 
   const editData = (val: any) => {
     setIsVisibleEdit(true)
-    setOperationId(val.aid)
+    setOperationId(val.book_id)
     form.setFieldsValue({
       status: String(val.status),
       type: String(val.type),
-      source: val.source,
-      rejection_reason: val.rejection_reason,
-      tag_ids: val.tag_ids ? val.tag_ids.split(',') : []
+      rejection_reason: val.rejection_reason
     });
   }
 
   const deleteData = (val: any) => {
     confirm({
-      title: '确认要删除此文章吗？',
+      title: '确认要删除此小书章节吗？',
       content: '此操作不可逆转',
       okText: 'Yes',
       okType: 'danger',
       cancelText: 'No',
       onOk: () => {
-        fetchDelete(val.aid)
-        /*删除文章*/
+        fetchDelete(val.book_id)
+        /*删除小书章节*/
       },
       onCancel() {
         console.log('Cancel')
@@ -244,11 +204,9 @@ const Article = () => {
   }
 
   const search = useCallback(() => {
-    http.post('/article/list', {
+    http.post('/book/list', {
       title: titleVal,
-      source: sourceVal,
       status: statusVal,
-      type: typeVal,
       page: pagination.current,
       pageSize: pagination.pageSize,
     })
@@ -256,13 +214,11 @@ const Article = () => {
         setTableList(result.data.list)
         setTotal(result.data.count)
       })
-  }, [pagination, sourceVal, statusVal, titleVal, typeVal])
+  }, [pagination, statusVal, titleVal])
 
   useEffect(() => {
-    http.post('/article/list', {
-      source: sourceVal,
+    http.post('/book/list', {
       status: statusVal,
-      type: typeVal,
       page: pagination.current,
       pageSize: pagination.pageSize,
     })
@@ -270,13 +226,11 @@ const Article = () => {
         setTableList(result.data.list)
         setTotal(result.data.count)
       })
-  }, [pagination, sourceVal, statusVal, typeVal])
+  }, [pagination, statusVal])
 
   const resetBarFrom = () => {
     setTitleVal('')
     setStatusVal('')
-    setTypeVal('')
-    setSourceVal('')
   }
 
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {
@@ -293,20 +247,20 @@ const Article = () => {
   };
 
   const fetchEdit = (values: editArticleInfo) => {
-    /*修改文章*/
-    http.post('/article/edit', { aid: operationId, ...values }).then((result: any) => {
+    /*修改小书章节*/
+    http.post('/book/update', { book_id: operationId, ...values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('修改文章成功');
+      message.success('修改小书章节成功');
     })
   }
 
   const fetchDelete = (values: String) => {
-    /*修改文章*/
-    http.post('/article/delete', { aid: values }).then((result: any) => {
+    /*修改小书章节*/
+    http.post('/book/delete', { book_id: values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('删除文章成功');
+      message.success('删除小书章节成功');
     })
   }
 
@@ -325,9 +279,9 @@ const Article = () => {
             <span>主页</span>
           </Breadcrumb.Item>
           <Breadcrumb.Item href="#">
-            <span>文章管理</span>
+            <span>小书章节管理</span>
           </Breadcrumb.Item>
-          <Breadcrumb.Item>文章汇总</Breadcrumb.Item>
+          <Breadcrumb.Item>小书章节汇总</Breadcrumb.Item>
         </Breadcrumb>
       </div>
       <div className="card">
@@ -338,7 +292,7 @@ const Article = () => {
           onCancel={() => {
             setIsVisibleEdit(false)
           }}
-          title="修改文章"
+          title="修改小书章节"
           visible={isVisibleEdit}
         >
           <Form
@@ -375,44 +329,6 @@ const Article = () => {
               <Input />
             </Form.Item>) : ''}
 
-            <Form.Item name="type" label="类型" rules={[{ required: true }]}>
-              <Select
-                placeholder="请选择类型！"
-                allowClear
-              >
-                {Object.keys(articleTypeText).map((key: any) => (
-                  <Option key={key} value={key}>
-                    {articleTypeText[key]}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item name="tag_ids" label="所属标签" rules={[{ required: true }]}>
-              <Select
-                placeholder="请选择所属标签"
-                allowClear
-                mode="multiple"
-              >
-                {articleTagAll.map((item: any) => (
-                  <Option key={item.tag_id} value={item.tag_id}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item name="source" label="来源" rules={[{ required: true }]}>
-              <Select
-                placeholder="请选择来源！"
-                allowClear
-              >
-                {sourceList.map((item: any, key: any) =>
-                  item ? <Option key={key} value={key}>{item}</Option> : ''
-                )}
-              </Select>
-            </Form.Item>
-
             <Form.Item {...tailLayout}>
               <Button type="primary" htmlType="submit">
                 提交
@@ -430,7 +346,8 @@ const Article = () => {
 
           <div className="xsb-operation-menu">
             <Form layout="inline">
-              <Form.Item label="文章标题">
+
+              <Form.Item label="小书章节标题">
                 <Input
                   value={titleVal}
                   onChange={e => {
@@ -438,6 +355,7 @@ const Article = () => {
                   }}
                 />
               </Form.Item>
+
               <Form.Item label="状态">
                 <Select
                   className="select-view"
@@ -454,36 +372,7 @@ const Article = () => {
                   ))}
                 </Select>
               </Form.Item>
-              <Form.Item label="类型">
-                <Select
-                  className="select-view"
-                  value={typeVal}
-                  onChange={value => {
-                    setTypeVal(value)
-                  }}
-                >
-                  <Option value="">全部</Option>
-                  {Object.keys(articleTypeText).map((key: any) => (
-                    <Option key={key} value={key}>
-                      {articleTypeText[key]}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item label="来源：">
-                <Select
-                  className="select-view"
-                  value={sourceVal}
-                  onChange={value => {
-                    setSourceVal(value)
-                  }}
-                >
-                  <Option value="">全部</Option>
-                  {sourceList.map((item, key) =>
-                    item ? <Option value={key} key={key}>{item}</Option> : ''
-                  )}
-                </Select>
-              </Form.Item>
+
               <Form.Item>
                 <button
                   className="btn btn-danger"
@@ -509,4 +398,4 @@ const Article = () => {
 
 }
 
-export default Article
+export default Book

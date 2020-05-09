@@ -6,7 +6,11 @@ import http from '@libs/http'
 import {
   statusList,
   statusListText,
-  articleTypeText
+  articleTypeText,
+  otherStatusList,
+  otherStatusListText,
+  dynamicTypeText,
+  dynamicType
 } from '@utils/constant'
 const Option = Select.Option
 const confirm = Modal.confirm
@@ -18,7 +22,7 @@ interface editArticleInfo {
   type: String
 }
 
-const Article = () => {
+const Dynamic = () => {
 
   const layout = {
     labelCol: { span: 8 },
@@ -27,13 +31,11 @@ const Article = () => {
   const tailLayout = {
     wrapperCol: { offset: 8, span: 16 },
   };
-  const [titleVal, setTitleVal] = useState('')
+  const [contentVal, setContentVal] = useState('')
   const [statusVal, setStatusVal] = useState('')
   const [typeVal, setTypeVal] = useState('')
-  const [sourceVal, setSourceVal] = useState('')
-  const [sourceList] = useState(['', '原创', '转载'])
   const [tableList, setTableList] = useState([])
-  const [articleTagAll, setArticleTagAll] = useState([])
+  const [dynamicTopicAll, setDynamicTopicAll] = useState([])
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -47,8 +49,8 @@ const Article = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    http.get('/article-tag/all').then(res => {
-      setArticleTagAll(res.data.list)
+    http.get('/dynamic-topic/all').then(res => {
+      setDynamicTopicAll(res.data.all)
     })
   }, [])
 
@@ -70,51 +72,14 @@ const Article = () => {
       )
     },
     {
-      title: '标题',
-      dataIndex: 'title',
-      key: 'title',
+      title: '内容',
+      dataIndex: 'content',
+      key: 'content',
       render: (text: any, record: any) => (
-        <a
-          className="article-title"
-          target="tag"
-          rel="chapter"
-          href={`/p/${record.aid}`}
-        >
-          {record.title}
+        <a href={`/dynamic/${record.id}`} className="dynamic-content">
+          {record.content}
         </a>
       )
-    },
-    {
-      title: '概要',
-      dataIndex: 'excerpt',
-      key: 'excerpt'
-    },
-    {
-      title: '所属标签',
-      dataIndex: 'tag_ids',
-      key: 'tag_ids',
-      render: (value: any, record: any) => {
-        return (
-          <div className="table-article-tag-view">
-            {articleTagAll.map((item: any, key: any) => {
-              let tags = record.tag_ids.split(',')
-              return tags.map((childItem: any, childKey: any) => {
-                if (item.tag_id === childItem) {
-                  return (
-                    <Tag
-                      className="table-article-tag-list"
-                      key={childKey}
-                      color="orange"
-                    >
-                      {item.name}
-                    </Tag>
-                  )
-                }
-              })
-            })}
-          </div>
-        )
-      }
     },
     {
       title: '创建时间',
@@ -126,8 +91,8 @@ const Article = () => {
       dataIndex: 'status',
       key: 'status',
       render: (text: any, record: any) => (
-        <Tag className="table-article-tag-list" color="orange">
-          {statusListText[record.status]}
+        <Tag className="table-article-tag-list" color="red">
+          {otherStatusListText[record.status]}
         </Tag>
       )
     },
@@ -137,30 +102,45 @@ const Article = () => {
       key: 'type',
       render: (text: any, record: any) => (
         <Tag className="table-article-tag-list" color="red">
-          {articleTypeText[record.type]}
+          {dynamicTypeText[record.type]}
         </Tag>
       )
     },
     {
-      title: '来源',
-      dataIndex: 'source',
-      key: 'source',
-      render: (text: any, record: any) => {
+      title: '所属话题',
+      dataIndex: 'tag_ids',
+      key: 'tag_ids',
+      render: (value: any, record: any) => {
         return (
-          <Tag className="table-article-tag-list" color="red">
-            {sourceList[Number(record.source)]}
-          </Tag>
+          <div className="table-article-tag-view">
+            {dynamicTopicAll.map((item: any, key: any) => {
+              if (item.topic_id === record.topic_ids) {
+                return (
+                  <Tag
+                    className="table-article-tag-list"
+                    key={key}
+                    color="orange"
+                  >
+                    {item.name}
+                  </Tag>
+                )
+              }
+            })}
+          </div>
         )
       }
     },
     {
-      title: '阅读数',
-      dataIndex: 'read_count',
-      key: 'read_count',
+      title: '预览',
+      dataIndex: 'attach',
+      key: 'attach',
       render: (text: any, record: any) => (
-        <Tag className="table-article-tag-list" color="green">
-          {record.read_count}
-        </Tag>
+        <div
+          className="img-preview"
+          dangerouslySetInnerHTML={{
+            __html: renderAttach(record) || ''
+          }}
+        />
       )
     },
     {
@@ -179,7 +159,7 @@ const Article = () => {
       key: 'rejection_reason',
       render: (text: any, record: any) => (
         <div>
-          {Number(record.status) === statusList.reviewFail
+          {record.status == otherStatusList.reviewFail
             ? record.rejection_reason
             : ''}
         </div>
@@ -216,25 +196,24 @@ const Article = () => {
 
   const editData = (val: any) => {
     setIsVisibleEdit(true)
-    setOperationId(val.aid)
+    setOperationId(val.id)
     form.setFieldsValue({
       status: String(val.status),
       type: String(val.type),
-      source: val.source,
       rejection_reason: val.rejection_reason,
-      tag_ids: val.tag_ids ? val.tag_ids.split(',') : []
+      topic_ids: val.topic_ids
     });
   }
 
   const deleteData = (val: any) => {
     confirm({
-      title: '确认要删除此文章吗？',
+      title: '确认要删除此动态吗？',
       content: '此操作不可逆转',
       okText: 'Yes',
       okType: 'danger',
       cancelText: 'No',
       onOk: () => {
-        fetchDelete(val.aid)
+        fetchDelete(val.id)
         /*删除文章*/
       },
       onCancel() {
@@ -244,9 +223,8 @@ const Article = () => {
   }
 
   const search = useCallback(() => {
-    http.post('/article/list', {
-      title: titleVal,
-      source: sourceVal,
+    http.post('/dynamic/list', {
+      content: contentVal,
       status: statusVal,
       type: typeVal,
       page: pagination.current,
@@ -256,11 +234,10 @@ const Article = () => {
         setTableList(result.data.list)
         setTotal(result.data.count)
       })
-  }, [pagination, sourceVal, statusVal, titleVal, typeVal])
+  }, [contentVal, pagination, statusVal, typeVal])
 
   useEffect(() => {
-    http.post('/article/list', {
-      source: sourceVal,
+    http.post('/dynamic/list', {
       status: statusVal,
       type: typeVal,
       page: pagination.current,
@@ -270,13 +247,12 @@ const Article = () => {
         setTableList(result.data.list)
         setTotal(result.data.count)
       })
-  }, [pagination, sourceVal, statusVal, typeVal])
+  }, [pagination, statusVal, typeVal])
 
   const resetBarFrom = () => {
-    setTitleVal('')
+    setContentVal('')
     setStatusVal('')
     setTypeVal('')
-    setSourceVal('')
   }
 
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {
@@ -292,21 +268,42 @@ const Article = () => {
     console.log('Failed:', errorInfo);
   };
 
+  const imgAnalyze = (attach: string) => {
+    let urlArr = attach.split(',') || []
+    let length = attach.split(',').length
+    return length > 0 ? urlArr : []
+  }
+
+  const renderAttach = (item: any) => {
+    // 渲染其他
+    if (item.type === dynamicType.link) {
+      return `<a href="${item.attach}" target="_block">
+       ${item.attach}
+        </a>`
+    } else if (item.type === dynamicType.img) {
+      let img = ''
+      imgAnalyze(item.attach).map((item: any) => {
+        img += `<img src="${item}" alt=""></img>`
+      })
+      return img
+    }
+  }
+
   const fetchEdit = (values: editArticleInfo) => {
     /*修改文章*/
-    http.post('/article/edit', { aid: operationId, ...values }).then((result: any) => {
+    http.post('/dynamic/update', { id: operationId, ...values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('修改文章成功');
+      message.success('修改动态成功');
     })
   }
 
   const fetchDelete = (values: String) => {
-    /*修改文章*/
-    http.post('/article/delete', { aid: values }).then((result: any) => {
+    /*删除文章*/
+    http.post('/dynamic/delete', { id: values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('删除文章成功');
+      message.success('删除动态成功');
     })
   }
 
@@ -325,9 +322,9 @@ const Article = () => {
             <span>主页</span>
           </Breadcrumb.Item>
           <Breadcrumb.Item href="#">
-            <span>文章管理</span>
+            <span>动态管理</span>
           </Breadcrumb.Item>
-          <Breadcrumb.Item>文章汇总</Breadcrumb.Item>
+          <Breadcrumb.Item>动态汇总</Breadcrumb.Item>
         </Breadcrumb>
       </div>
       <div className="card">
@@ -338,7 +335,7 @@ const Article = () => {
           onCancel={() => {
             setIsVisibleEdit(false)
           }}
-          title="修改文章"
+          title="修改动态"
           visible={isVisibleEdit}
         >
           <Form
@@ -355,9 +352,9 @@ const Article = () => {
                 onChange={onGenderChange}
                 allowClear
               >
-                {Object.keys(statusListText).map((key: any) => (
+                {Object.keys(otherStatusListText).map((key: any) => (
                   <Option key={key} value={key}>
-                    {statusListText[key]}
+                    {otherStatusListText[key]}
                   </Option>
                 ))}
               </Select>
@@ -380,36 +377,24 @@ const Article = () => {
                 placeholder="请选择类型！"
                 allowClear
               >
-                {Object.keys(articleTypeText).map((key: any) => (
+                {Object.keys(dynamicTypeText).map((key: any) => (
                   <Option key={key} value={key}>
-                    {articleTypeText[key]}
+                    {dynamicTypeText[key]}
                   </Option>
                 ))}
               </Select>
             </Form.Item>
 
-            <Form.Item name="tag_ids" label="所属标签" rules={[{ required: true }]}>
+            <Form.Item name="topic_ids" label="所属专题" rules={[{ required: true }]}>
               <Select
-                placeholder="请选择所属标签"
+                placeholder="请选择所属专题"
                 allowClear
-                mode="multiple"
               >
-                {articleTagAll.map((item: any) => (
-                  <Option key={item.tag_id} value={item.tag_id}>
+                {dynamicTopicAll.map((item: any) => (
+                  <Option key={item.topic_id} value={item.topic_id}>
                     {item.name}
                   </Option>
                 ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item name="source" label="来源" rules={[{ required: true }]}>
-              <Select
-                placeholder="请选择来源！"
-                allowClear
-              >
-                {sourceList.map((item: any, key: any) =>
-                  item ? <Option key={key} value={key}>{item}</Option> : ''
-                )}
               </Select>
             </Form.Item>
 
@@ -430,11 +415,11 @@ const Article = () => {
 
           <div className="xsb-operation-menu">
             <Form layout="inline">
-              <Form.Item label="文章标题">
+              <Form.Item label="动态内容">
                 <Input
-                  value={titleVal}
+                  value={contentVal}
                   onChange={e => {
-                    setTitleVal(e.target.value)
+                    setContentVal(e.target.value)
                   }}
                 />
               </Form.Item>
@@ -447,9 +432,9 @@ const Article = () => {
                   }}
                 >
                   <Option value="">全部</Option>
-                  {Object.keys(statusListText).map((key: any) => (
+                  {Object.keys(otherStatusListText).map((key: any) => (
                     <Option key={key} value={key}>
-                      {statusListText[key]}
+                      {otherStatusListText[key]}
                     </Option>
                   ))}
                 </Select>
@@ -463,27 +448,14 @@ const Article = () => {
                   }}
                 >
                   <Option value="">全部</Option>
-                  {Object.keys(articleTypeText).map((key: any) => (
+                  {Object.keys(dynamicTypeText).map((key: any) => (
                     <Option key={key} value={key}>
-                      {articleTypeText[key]}
+                      {dynamicTypeText[key]}
                     </Option>
                   ))}
                 </Select>
               </Form.Item>
-              <Form.Item label="来源：">
-                <Select
-                  className="select-view"
-                  value={sourceVal}
-                  onChange={value => {
-                    setSourceVal(value)
-                  }}
-                >
-                  <Option value="">全部</Option>
-                  {sourceList.map((item, key) =>
-                    item ? <Option value={key} key={key}>{item}</Option> : ''
-                  )}
-                </Select>
-              </Form.Item>
+
               <Form.Item>
                 <button
                   className="btn btn-danger"
@@ -509,4 +481,4 @@ const Article = () => {
 
 }
 
-export default Article
+export default Dynamic

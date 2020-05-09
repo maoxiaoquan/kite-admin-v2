@@ -20,8 +20,9 @@ const Manager = () => {
   const [isMobile, setIsMobile] = useState(false)
   const [allAuthorityNameId, setAllAuthorityNameId] = useState([''])
   const [adminUserInfo, setAdminUserInfo] = useState({})
-  const [website, setWebsite] = useState({})
-
+  const [website, setWebsite] = useState({
+    website_name: ''
+  })
 
   useEffect(() => {
     getAdminUserInfo()
@@ -40,6 +41,8 @@ const Manager = () => {
         setAllAuthorityNameId(result.data.allAuthorityNameId || [])
       })
   }
+
+  document.title = website.website_name
 
   const asideProps = {
     collapsed,
