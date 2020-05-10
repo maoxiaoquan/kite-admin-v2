@@ -10,7 +10,7 @@ import {
   Button,
   message,
   Switch,
-  InputNumber,
+  Tree,
 } from 'antd'
 import {
   DeleteOutlined,
@@ -26,9 +26,10 @@ import {
   articleTypeText,
   otherStatusListText,
 } from '@utils/constant'
+
 const Option = Select.Option
 const confirm = Modal.confirm
-
+const TreeNode = Tree.TreeNode
 interface editArticleInfo {
   source: number | String
   status: String
@@ -36,7 +37,7 @@ interface editArticleInfo {
   type: String
 }
 
-const DynamicTopic = () => {
+const UserRole = () => {
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -53,7 +54,37 @@ const DynamicTopic = () => {
   const [isVisibleEdit, setIsVisibleEdit] = useState(false)
   const [operationId, setOperationId] = useState('')
   const [isCreate, setIsCreate] = useState(true)
+  const [useRoleTypeList] = useState(['', '默认角色', '定制化角色'])
+  const [visiblSeAuthorityModal, setVisiblSeAuthorityModal] = useState(false)
+  const [roleAuthorityList, setRoleAuthorityList] = useState<string[]>([])
+  const [userAuthoritySourceList, setUserAuthoritySourceList] = useState([])
+  const [userAuthorityList, setUserAuthorityList] = useState<string[]>([])
+  const [roleAuthorityListAll, setRoleAuthorityListAll] = useState<string[]>([])
   const [form] = Form.useForm()
+
+  const filterArray = (result: any, pid: any) => {
+    let _array: any[] = []
+    for (let i in result) {
+      if (result[i].authority_parent_id == pid) {
+        result[i].children = filterArray(result, result[i].authority_id)
+        _array.push(result[i])
+      }
+    }
+    return _array
+  }
+
+  const fetchUserRoleList = () => {
+    http.get('/user-authority/list').then((result: any) => {
+      setUserAuthoritySourceList(result.data)
+      const arr: any[] = filterArray(result.data, '')
+      setUserAuthorityList(arr)
+      console.log('userAuthorityList', userAuthorityList)
+    })
+  }
+
+  useEffect(() => {
+    fetchUserRoleList()
+  }, [])
 
   const columns = [
     {
@@ -72,50 +103,55 @@ const DynamicTopic = () => {
       ),
     },
     {
-      title: '专题名',
-      dataIndex: 'name',
-      key: 'name',
+      title: '角色名',
+      dataIndex: 'user_role_name',
+      key: 'user_role_name',
+      render: (text: any, record: any) => (
+        <Tag className="table-article-tag-list" color="orange">
+          {record.user_role_name}
+        </Tag>
+      ),
     },
     {
-      title: '专题单词',
-      dataIndex: 'en_name',
-      key: 'en_name',
+      title: '角色图标',
+      dataIndex: 'user_role_icon',
+      key: 'user_role_icon',
     },
     {
-      title: '专题图标地址',
-      dataIndex: 'icon',
-      key: 'icon',
+      title: '角色类型',
+      dataIndex: 'status',
+      key: 'status',
+      render: (text: any, record: any) => (
+        <Tag className="table-article-tag-list" color="orange">
+          {useRoleTypeList[record.user_role_type]}
+        </Tag>
+      ),
     },
     {
-      title: '专题演示',
-      dataIndex: 'icon',
-      key: 'demo',
+      title: '角色介绍',
+      dataIndex: 'user_role_description',
+      key: 'user_role_description',
+    },
+    {
+      title: '角色图标演示',
+      dataIndex: 'user_role_icon',
+      key: 'user_role_icon_demo',
       render: (value: any, record: any) => {
         return (
           <div className="avatar img-preview">
-            <img className="tag-img-icon" src={record.icon} alt="" />
+            <img className="tag-img-icon" src={record.user_role_icon} alt="" />
           </div>
         )
       },
     },
     {
-      title: '备注',
-      dataIndex: 'description',
-      key: 'description',
-    },
-    {
-      title: '订阅数量',
-      dataIndex: 'rss_count',
-      key: 'rss_count',
-    },
-    {
-      title: '是否首页侧栏显示',
+      title: '是否在个人中心显示',
       dataIndex: 'is_show',
       key: 'is_show',
       render: (value: any, record: any) => {
         return (
-          <div className="table-is-login">
-            {record.is_show ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+          <div className="table-enable">
+            {value ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
           </div>
         )
       },
@@ -126,20 +162,8 @@ const DynamicTopic = () => {
       key: 'enable',
       render: (value: any, record: any) => {
         return (
-          <div className="table-is-login">
-            {record.enable ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-          </div>
-        )
-      },
-    },
-    {
-      title: '是否加入首页或者推荐',
-      dataIndex: 'is_push',
-      key: 'is_push',
-      render: (value: any, record: any) => {
-        return (
-          <div className="table-is-login">
-            {record.is_push ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+          <div className="table-enable">
+            {value ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
           </div>
         )
       },
@@ -149,7 +173,7 @@ const DynamicTopic = () => {
       key: 'action',
       render: (text: any, record: any) => {
         return (
-          <div className="operation-btn">
+          <div className="operation-btn" style={{ width: '250px' }}>
             <button
               onClick={() => {
                 editData(record)
@@ -158,6 +182,7 @@ const DynamicTopic = () => {
             >
               <EditOutlined />
             </button>
+
             <button
               className="btn btn-light"
               onClick={() => {
@@ -166,6 +191,25 @@ const DynamicTopic = () => {
             >
               <DeleteOutlined />
             </button>
+
+            {record.user_role_type !== 2 ? (
+              <button
+                className="btn btn-primary"
+                onClick={async () => {
+                  setVisiblSeAuthorityModal(true)
+                  initTreeData(
+                    record.user_authority_ids
+                      ? record.user_authority_ids.split(',')
+                      : ''
+                  )
+                  setOperationId(record.user_role_id)
+                }}
+              >
+                设置权限
+              </button>
+            ) : (
+              ''
+            )}
           </div>
         )
       },
@@ -174,7 +218,7 @@ const DynamicTopic = () => {
 
   const editData = (val: any) => {
     showModal('edit')
-    setOperationId(val.topic_id)
+    setOperationId(val.user_role_id)
     form.setFieldsValue({
       ...val,
     })
@@ -182,24 +226,22 @@ const DynamicTopic = () => {
 
   const deleteData = (val: any) => {
     confirm({
-      title: '确认要删除此文章吗？',
+      title: '确认要删除此用户角色吗？',
       content: '此操作不可逆转',
       okText: 'Yes',
 
       cancelText: 'No',
       onOk: () => {
-        fetchDelete(val.topic_id)
-        /*删除文章*/
+        fetchDelete(val.user_role_id)
+        /*删除用户角色*/
       },
-      onCancel() {
-        console.log('Cancel')
-      },
+      onCancel() {},
     })
   }
 
   const search = useCallback(() => {
     http
-      .get('/dynamic-topic/list', {
+      .get('/user-role/list', {
         params: {
           page: pagination.current,
           pageSize: pagination.pageSize,
@@ -237,38 +279,80 @@ const DynamicTopic = () => {
     }
   }
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo)
+  const initTreeData = (val: any) => {
+    /* 初始化选中树 */
+    let tree: Array<string> = []
+    userAuthoritySourceList.map((item: any) => {
+      if (
+        Number(item.authority_type) === 2 &&
+        val.indexOf(item.authority_id) !== -1
+      ) {
+        tree.push(item.authority_id)
+      }
+    })
+    setRoleAuthorityList(tree)
+    setRoleAuthorityListAll(tree)
   }
 
+  const onFinishFailed = (errorInfo: any) => {}
+
   const fetchCreate = (values: editArticleInfo) => {
-    /*创建动态专题*/
-    http.post('/dynamic-topic/create', { ...values }).then((result: any) => {
+    /*创建用户角色*/
+    http.post('/user-role/create', { ...values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('创建动态专题成功')
+      message.success('创建用户角色成功')
     })
   }
 
   const fetchEdit = (values: editArticleInfo) => {
-    /*修改动态专题*/
+    /*修改用户角色*/
     http
-      .post('/dynamic-topic/update', { topic_id: operationId, ...values })
+      .post('/user-role/update', { user_role_id: operationId, ...values })
       .then((result: any) => {
         search()
         setIsVisibleEdit(false)
-        message.success('修改动态专题成功')
+        message.success('修改用户角色成功')
       })
   }
 
   const fetchDelete = (values: String) => {
-    /*删除动态专题*/
+    /*删除用户角色*/
     http
-      .post('/dynamic-topic/delete', { topic_id: values })
+      .post('/user-role/delete', { user_role_id: values })
       .then((result: any) => {
         search()
         setIsVisibleEdit(false)
-        message.success('删除动态专题成功')
+        message.success('删除用户角色成功')
+      })
+  }
+
+  const onCheck = (checkedKeys: any, event: any) => {
+    setRoleAuthorityList(checkedKeys)
+    const arr: any[] = [...checkedKeys, ...event.halfCheckedKeys]
+    setRoleAuthorityListAll(arr)
+  }
+
+  const treeDataFormate = (data: any[]) =>
+    data.map((item) => {
+      item.key = item.authority_id
+      item.title = item.authority_name
+      if (item.children?.length) item.children = treeDataFormate(item.children)
+      return item
+    })
+
+  const fetchSetUserRoleAuthority = () => {
+    /* 传递tyepe=2子节点 */
+    http
+      .post('/user-role-authority/set', {
+        user_role_id: operationId,
+        roleAuthorityListAll,
+      })
+      .then(() => {
+        message.success('角色权限设置成功')
+        setVisiblSeAuthorityModal(false)
+        fetchUserRoleList()
+        search()
       })
   }
 
@@ -280,9 +364,9 @@ const DynamicTopic = () => {
             <span>主页</span>
           </Breadcrumb.Item>
           <Breadcrumb.Item href="#">
-            <span>动态管理</span>
+            <span>用户管理</span>
           </Breadcrumb.Item>
-          <Breadcrumb.Item>动态专题</Breadcrumb.Item>
+          <Breadcrumb.Item>用户角色</Breadcrumb.Item>
         </Breadcrumb>
       </div>
 
@@ -293,7 +377,7 @@ const DynamicTopic = () => {
             showModal('add')
           }}
         >
-          创建动态专题
+          创建用户角色
         </button>
       </div>
 
@@ -304,7 +388,7 @@ const DynamicTopic = () => {
           onCancel={() => {
             setIsVisibleEdit(false)
           }}
-          title={isCreate ? '创建动态专题' : '修改动态专题'}
+          title={isCreate ? '创建用户角色' : '修改用户角色'}
           visible={isVisibleEdit}
         >
           <Form
@@ -316,12 +400,12 @@ const DynamicTopic = () => {
             onFinishFailed={onFinishFailed}
           >
             <Form.Item
-              label="专题名"
-              name="name"
+              label="角色名"
+              name="user_role_name"
               rules={[
                 {
                   required: true,
-                  message: '请输入专题名！',
+                  message: '请输入角色名！',
                   whitespace: true,
                 },
               ]}
@@ -330,12 +414,30 @@ const DynamicTopic = () => {
             </Form.Item>
 
             <Form.Item
-              label="专题名单词"
-              name="en_name"
+              name="user_role_type"
+              label="角色类型"
+              rules={[{ required: true }]}
+            >
+              <Select placeholder="请选择角色类型" allowClear>
+                {useRoleTypeList.map((item: any, key: any) =>
+                  item ? (
+                    <Option value={key} key={key}>
+                      {item}
+                    </Option>
+                  ) : (
+                    ''
+                  )
+                )}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="角色名图标"
+              name="user_role_icon"
               rules={[
                 {
                   required: true,
-                  message: '请输入专题名单词！',
+                  message: '请输入角色名图标！',
                   whitespace: true,
                 },
               ]}
@@ -344,45 +446,17 @@ const DynamicTopic = () => {
             </Form.Item>
 
             <Form.Item
-              label="专题图标地址"
-              name="icon"
+              label="角色描述"
+              name="user_role_description"
               rules={[
                 {
                   required: true,
-                  message: '请输入专题图标地址！',
+                  message: '请输入角色描述！',
                   whitespace: true,
                 },
               ]}
             >
               <Input />
-            </Form.Item>
-
-            <Form.Item
-              label="专题描述"
-              name="description"
-              rules={[
-                {
-                  required: true,
-                  message: '请输入专题描述',
-                  whitespace: true,
-                },
-              ]}
-            >
-              <Input.TextArea />
-            </Form.Item>
-
-            <Form.Item
-              label="首页显示"
-              name="is_show"
-              valuePropName="checked"
-              rules={[
-                {
-                  required: true,
-                  message: '请选择是否首页显示',
-                },
-              ]}
-            >
-              <Switch />
             </Form.Item>
 
             <Form.Item
@@ -400,30 +474,17 @@ const DynamicTopic = () => {
             </Form.Item>
 
             <Form.Item
-              label="是否加入首页或者推荐"
-              name="is_push"
+              label="是否显示"
+              name="is_show"
               valuePropName="checked"
               rules={[
                 {
                   required: true,
-                  message: '请选择是否加入首页或者推荐',
+                  message: '请选择是否显示',
                 },
               ]}
             >
               <Switch />
-            </Form.Item>
-
-            <Form.Item
-              name="sort"
-              label="排序"
-              rules={[
-                {
-                  required: true,
-                  message: '请输入排序',
-                },
-              ]}
-            >
-              <InputNumber min={0} max={50} />
             </Form.Item>
 
             <Form.Item {...tailLayout}>
@@ -448,13 +509,48 @@ const DynamicTopic = () => {
           </Form>
         </Modal>
 
+        <Modal
+          footer={null}
+          onCancel={() => {
+            setVisiblSeAuthorityModal(false)
+          }}
+          title="设置权限"
+          visible={visiblSeAuthorityModal}
+        >
+          <Tree
+            checkable
+            checkedKeys={roleAuthorityList}
+            defaultExpandAll={true}
+            onCheck={onCheck}
+            showLine
+            treeData={treeDataFormate(userAuthorityList)}
+          ></Tree>
+          <div className="admin-role-foot">
+            <Button
+              onClick={() => {
+                fetchSetUserRoleAuthority()
+              }}
+              type="primary"
+            >
+              确定
+            </Button>
+            <Button
+              onClick={() => {
+                setVisiblSeAuthorityModal(false)
+              }}
+            >
+              取消
+            </Button>
+          </div>
+        </Modal>
+
         <div className="card-body">
           <Table
             columns={columns}
             pagination={{ ...pagination, total }}
             onChange={handleTableChange}
             dataSource={tableList}
-            rowKey={(record) => record.id}
+            rowKey={(record) => record.user_role_id}
           />
         </div>
       </div>
@@ -462,4 +558,4 @@ const DynamicTopic = () => {
   )
 }
 
-export default DynamicTopic
+export default UserRole

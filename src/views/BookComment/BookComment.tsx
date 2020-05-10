@@ -1,15 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Table, Tag, Breadcrumb, Form, Select, Input, Modal, Button, message } from 'antd'
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Tag,
+  Breadcrumb,
+  Form,
+  Select,
+  Input,
+  Modal,
+  Button,
+  message,
+} from 'antd'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import http from '@libs/http'
 
 import {
   statusList,
   statusListText,
   articleTypeText,
-  otherStatusListText
+  otherStatusListText,
 } from '@utils/constant'
-
 
 import faceqq from '@utils/qq'
 const Option = Select.Option
@@ -23,14 +32,13 @@ interface editArticleInfo {
 }
 
 const BookComment = () => {
-
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
-  };
+  }
   const tailLayout = {
     wrapperCol: { offset: 8, span: 16 },
-  };
+  }
   const [contentVal, setContentVal] = useState('')
   const [statusVal, setStatusVal] = useState('')
   const [tableList, setTableList] = useState([])
@@ -41,8 +49,7 @@ const BookComment = () => {
   const [total, setTotal] = useState(0)
   const [isVisibleEdit, setIsVisibleEdit] = useState(false)
   const [operationId, setOperationId] = useState('')
-  const [form] = Form.useForm();
-
+  const [form] = Form.useForm()
 
   const columns = [
     {
@@ -53,12 +60,12 @@ const BookComment = () => {
         <span
           style={{
             width: '20px',
-            display: 'block'
+            display: 'block',
           }}
         >
           {(pagination.current - 1) * 10 + index + 1}
         </span>
-      )
+      ),
     },
     {
       title: '小书章节评论内容',
@@ -67,10 +74,10 @@ const BookComment = () => {
       render: (text: any, record: any) => (
         <div
           dangerouslySetInnerHTML={{
-            __html: commentRender(record.content)
+            __html: commentRender(record.content),
           }}
         />
-      )
+      ),
     },
     {
       title: '来自小书',
@@ -83,10 +90,10 @@ const BookComment = () => {
               {record.books.title ? record.books.title : '-'}
             </a>
           ) : (
-              '-'
-            )}
+            '-'
+          )}
         </div>
-      )
+      ),
     },
     {
       title: '来自小书章节',
@@ -102,7 +109,7 @@ const BookComment = () => {
             {record.book.title}
           </a>
         </div>
-      )
+      ),
     },
     {
       title: '状态',
@@ -112,12 +119,12 @@ const BookComment = () => {
         <Tag className="table-article-tag-list" color="orange">
           {otherStatusListText[record.status]}
         </Tag>
-      )
+      ),
     },
     {
       title: '评论时间',
       dataIndex: 'create_dt',
-      key: 'create_dt'
+      key: 'create_dt',
     },
     {
       title: '操作',
@@ -143,17 +150,16 @@ const BookComment = () => {
             </button>
           </div>
         )
-      }
-    }
-  ];
-
+      },
+    },
+  ]
 
   const editDate = (val: any) => {
     setIsVisibleEdit(true)
     setOperationId(val.id)
     form.setFieldsValue({
-      status: String(val.status)
-    });
+      status: String(val.status),
+    })
   }
 
   const deleteData = (val: any) => {
@@ -161,7 +167,7 @@ const BookComment = () => {
       title: '确认要删除此评论吗？',
       content: '此操作不可逆转',
       okText: 'Yes',
-      okType: 'danger',
+
       cancelText: 'No',
       onOk: () => {
         fetchDelete(val.id)
@@ -169,7 +175,7 @@ const BookComment = () => {
       },
       onCancel() {
         console.log('Cancel')
-      }
+      },
     })
   }
 
@@ -185,12 +191,13 @@ const BookComment = () => {
   }
 
   const search = useCallback(() => {
-    http.post('/book-comment/list', {
-      content: contentVal,
-      status: statusVal,
-      page: pagination.current,
-      pageSize: pagination.pageSize,
-    })
+    http
+      .post('/book-comment/list', {
+        content: contentVal,
+        status: statusVal,
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+      })
       .then((result: any) => {
         setTableList(result.data.list)
         setTotal(result.data.count)
@@ -198,10 +205,11 @@ const BookComment = () => {
   }, [contentVal, pagination, statusVal])
 
   useEffect(() => {
-    http.post('/book-comment/list', {
-      page: pagination.current,
-      pageSize: pagination.pageSize,
-    })
+    http
+      .post('/book-comment/list', {
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+      })
       .then((result: any) => {
         setTableList(result.data.list)
         setTotal(result.data.count)
@@ -215,23 +223,25 @@ const BookComment = () => {
 
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {
     setPagination(pagination)
-  };
+  }
 
   const onFinish = (values: any) => {
     fetchEdit(values)
-  };
+  }
 
   const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo);
-  };
+    console.log('Failed:', errorInfo)
+  }
 
   const fetchEdit = (values: editArticleInfo) => {
     /*修改小书*/
-    http.post('/book-comment/update', { id: operationId, ...values }).then((result: any) => {
-      search()
-      setIsVisibleEdit(false)
-      message.success('修改小书章节评论成功');
-    })
+    http
+      .post('/book-comment/update', { id: operationId, ...values })
+      .then((result: any) => {
+        search()
+        setIsVisibleEdit(false)
+        message.success('修改小书章节评论成功')
+      })
   }
 
   const fetchDelete = (values: String) => {
@@ -239,10 +249,9 @@ const BookComment = () => {
     http.post('/book-comment/delete', { id: values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('删除小书章节评论成功');
+      message.success('删除小书章节评论成功')
     })
   }
-
 
   return (
     <div className="layout-main">
@@ -258,7 +267,6 @@ const BookComment = () => {
         </Breadcrumb>
       </div>
       <div className="card">
-
         <Modal
           footer={null}
           getContainer={false}
@@ -276,12 +284,8 @@ const BookComment = () => {
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
           >
-
             <Form.Item name="status" label="状态" rules={[{ required: true }]}>
-              <Select
-                placeholder="请选择状态！"
-                allowClear
-              >
+              <Select placeholder="请选择状态！" allowClear>
                 {Object.keys(otherStatusListText).map((key: any) => (
                   <Option key={key} value={key}>
                     {otherStatusListText[key]}
@@ -290,14 +294,15 @@ const BookComment = () => {
               </Select>
             </Form.Item>
 
-
             <Form.Item {...tailLayout}>
               <Button type="primary" htmlType="submit">
                 提交
               </Button>
-              <Button onClick={() => {
-                setIsVisibleEdit(false)
-              }}>
+              <Button
+                onClick={() => {
+                  setIsVisibleEdit(false)
+                }}
+              >
                 取消
               </Button>
             </Form.Item>
@@ -305,13 +310,12 @@ const BookComment = () => {
         </Modal>
 
         <div className="card-body">
-
           <div className="xsb-operation-menu">
             <Form layout="inline">
               <Form.Item label="评论内容">
                 <Input
                   value={contentVal}
-                  onChange={e => {
+                  onChange={(e) => {
                     setContentVal(e.target.value)
                   }}
                 />
@@ -321,7 +325,7 @@ const BookComment = () => {
                 <Select
                   className="select-view"
                   value={statusVal}
-                  onChange={value => {
+                  onChange={(value) => {
                     setStatusVal(value)
                   }}
                 >
@@ -334,30 +338,28 @@ const BookComment = () => {
                 </Select>
               </Form.Item>
 
-
               <Form.Item>
-                <button
-                  className="btn btn-danger"
-                  onClick={search}
-                >
+                <button className="btn btn-danger" onClick={search}>
                   搜索
-                  </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={resetBarFrom}
-                >
+                </button>
+                <button className="btn btn-primary" onClick={resetBarFrom}>
                   重置
-                  </button>
+                </button>
               </Form.Item>
             </Form>
           </div>
 
-          <Table columns={columns} pagination={{ ...pagination, total }} onChange={handleTableChange} dataSource={tableList} rowKey={record => record.id} />
+          <Table
+            columns={columns}
+            pagination={{ ...pagination, total }}
+            onChange={handleTableChange}
+            dataSource={tableList}
+            rowKey={(record) => record.id}
+          />
         </div>
       </div>
     </div>
   )
-
 }
 
 export default BookComment

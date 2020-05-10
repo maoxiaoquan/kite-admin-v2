@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Table, Tag, Breadcrumb, Form, Select, Input, Modal, Button, message } from 'antd'
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Tag,
+  Breadcrumb,
+  Form,
+  Select,
+  Input,
+  Modal,
+  Button,
+  message,
+} from 'antd'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import http from '@libs/http'
 
-import {
-  statusList,
-  statusListText,
-  articleTypeText
-} from '@utils/constant'
+import { statusList, statusListText, articleTypeText } from '@utils/constant'
 const Option = Select.Option
 const confirm = Modal.confirm
 
@@ -19,14 +25,13 @@ interface editArticleInfo {
 }
 
 const Article = () => {
-
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
-  };
+  }
   const tailLayout = {
     wrapperCol: { offset: 8, span: 16 },
-  };
+  }
   const [titleVal, setTitleVal] = useState('')
   const [statusVal, setStatusVal] = useState('')
   const [typeVal, setTypeVal] = useState('')
@@ -41,17 +46,16 @@ const Article = () => {
   const [total, setTotal] = useState(0)
   const [isVisibleEdit, setIsVisibleEdit] = useState(false)
   const [formData, setFormData] = useState({
-    status: 0
+    status: 0,
   })
   const [operationId, setOperationId] = useState('')
-  const [form] = Form.useForm();
+  const [form] = Form.useForm()
 
   useEffect(() => {
-    http.get('/article-tag/all').then(res => {
+    http.get('/article-tag/all').then((res) => {
       setArticleTagAll(res.data.list)
     })
   }, [])
-
 
   const columns = [
     {
@@ -62,12 +66,12 @@ const Article = () => {
         <span
           style={{
             width: '20px',
-            display: 'block'
+            display: 'block',
           }}
         >
           {(pagination.current - 1) * 10 + index + 1}
         </span>
-      )
+      ),
     },
     {
       title: '标题',
@@ -82,12 +86,12 @@ const Article = () => {
         >
           {record.title}
         </a>
-      )
+      ),
     },
     {
       title: '概要',
       dataIndex: 'excerpt',
-      key: 'excerpt'
+      key: 'excerpt',
     },
     {
       title: '所属标签',
@@ -114,12 +118,12 @@ const Article = () => {
             })}
           </div>
         )
-      }
+      },
     },
     {
       title: '创建时间',
       dataIndex: 'create_dt',
-      key: 'create_dt'
+      key: 'create_dt',
     },
     {
       title: '状态',
@@ -129,7 +133,7 @@ const Article = () => {
         <Tag className="table-article-tag-list" color="orange">
           {statusListText[record.status]}
         </Tag>
-      )
+      ),
     },
     {
       title: '类型',
@@ -139,7 +143,7 @@ const Article = () => {
         <Tag className="table-article-tag-list" color="red">
           {articleTypeText[record.type]}
         </Tag>
-      )
+      ),
     },
     {
       title: '来源',
@@ -151,7 +155,7 @@ const Article = () => {
             {sourceList[Number(record.source)]}
           </Tag>
         )
-      }
+      },
     },
     {
       title: '阅读数',
@@ -161,7 +165,7 @@ const Article = () => {
         <Tag className="table-article-tag-list" color="green">
           {record.read_count}
         </Tag>
-      )
+      ),
     },
     {
       title: '评论数',
@@ -171,7 +175,7 @@ const Article = () => {
         <Tag className="table-article-tag-list" color="green">
           {record.comment_count}
         </Tag>
-      )
+      ),
     },
     {
       title: '拒绝的原因',
@@ -183,7 +187,7 @@ const Article = () => {
             ? record.rejection_reason
             : ''}
         </div>
-      )
+      ),
     },
     {
       title: '操作',
@@ -209,10 +213,9 @@ const Article = () => {
             </button>
           </div>
         )
-      }
-    }
-  ];
-
+      },
+    },
+  ]
 
   const editData = (val: any) => {
     setIsVisibleEdit(true)
@@ -222,8 +225,8 @@ const Article = () => {
       type: String(val.type),
       source: val.source,
       rejection_reason: val.rejection_reason,
-      tag_ids: val.tag_ids ? val.tag_ids.split(',') : []
-    });
+      tag_ids: val.tag_ids ? val.tag_ids.split(',') : [],
+    })
   }
 
   const deleteData = (val: any) => {
@@ -231,7 +234,6 @@ const Article = () => {
       title: '确认要删除此文章吗？',
       content: '此操作不可逆转',
       okText: 'Yes',
-      okType: 'danger',
       cancelText: 'No',
       onOk: () => {
         fetchDelete(val.aid)
@@ -239,19 +241,20 @@ const Article = () => {
       },
       onCancel() {
         console.log('Cancel')
-      }
+      },
     })
   }
 
   const search = useCallback(() => {
-    http.post('/article/list', {
-      title: titleVal,
-      source: sourceVal,
-      status: statusVal,
-      type: typeVal,
-      page: pagination.current,
-      pageSize: pagination.pageSize,
-    })
+    http
+      .post('/article/list', {
+        title: titleVal,
+        source: sourceVal,
+        status: statusVal,
+        type: typeVal,
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+      })
       .then((result: any) => {
         setTableList(result.data.list)
         setTotal(result.data.count)
@@ -259,13 +262,14 @@ const Article = () => {
   }, [pagination, sourceVal, statusVal, titleVal, typeVal])
 
   useEffect(() => {
-    http.post('/article/list', {
-      source: sourceVal,
-      status: statusVal,
-      type: typeVal,
-      page: pagination.current,
-      pageSize: pagination.pageSize,
-    })
+    http
+      .post('/article/list', {
+        source: sourceVal,
+        status: statusVal,
+        type: typeVal,
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+      })
       .then((result: any) => {
         setTableList(result.data.list)
         setTotal(result.data.count)
@@ -281,24 +285,25 @@ const Article = () => {
 
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {
     setPagination(pagination)
-  };
-
+  }
 
   const onFinish = (values: any) => {
     fetchEdit(values)
-  };
+  }
 
   const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo);
-  };
+    console.log('Failed:', errorInfo)
+  }
 
   const fetchEdit = (values: editArticleInfo) => {
     /*修改文章*/
-    http.post('/article/edit', { aid: operationId, ...values }).then((result: any) => {
-      search()
-      setIsVisibleEdit(false)
-      message.success('修改文章成功');
-    })
+    http
+      .post('/article/edit', { aid: operationId, ...values })
+      .then((result: any) => {
+        search()
+        setIsVisibleEdit(false)
+        message.success('修改文章成功')
+      })
   }
 
   const fetchDelete = (values: String) => {
@@ -306,16 +311,16 @@ const Article = () => {
     http.post('/article/delete', { aid: values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('删除文章成功');
+      message.success('删除文章成功')
     })
   }
 
   const onGenderChange = (value: any) => {
     setFormData({
       ...formData,
-      status: value
+      status: value,
     })
-  };
+  }
 
   return (
     <div className="layout-main">
@@ -331,7 +336,6 @@ const Article = () => {
         </Breadcrumb>
       </div>
       <div className="card">
-
         <Modal
           footer={null}
           getContainer={false}
@@ -363,23 +367,26 @@ const Article = () => {
               </Select>
             </Form.Item>
 
-            {formData.status == statusList.reviewFail ? (<Form.Item
-              label="拒绝的原因"
-              name="rejection_reason"
-              rules={[{
-                required: true,
-                message: '请输入拒绝的原因！',
-                whitespace: true
-              }]}
-            >
-              <Input />
-            </Form.Item>) : ''}
+            {formData.status == statusList.reviewFail ? (
+              <Form.Item
+                label="拒绝的原因"
+                name="rejection_reason"
+                rules={[
+                  {
+                    required: true,
+                    message: '请输入拒绝的原因！',
+                    whitespace: true,
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            ) : (
+              ''
+            )}
 
             <Form.Item name="type" label="类型" rules={[{ required: true }]}>
-              <Select
-                placeholder="请选择类型！"
-                allowClear
-              >
+              <Select placeholder="请选择类型！" allowClear>
                 {Object.keys(articleTypeText).map((key: any) => (
                   <Option key={key} value={key}>
                     {articleTypeText[key]}
@@ -388,12 +395,12 @@ const Article = () => {
               </Select>
             </Form.Item>
 
-            <Form.Item name="tag_ids" label="所属标签" rules={[{ required: true }]}>
-              <Select
-                placeholder="请选择所属标签"
-                allowClear
-                mode="multiple"
-              >
+            <Form.Item
+              name="tag_ids"
+              label="所属标签"
+              rules={[{ required: true }]}
+            >
+              <Select placeholder="请选择所属标签" allowClear mode="multiple">
                 {articleTagAll.map((item: any) => (
                   <Option key={item.tag_id} value={item.tag_id}>
                     {item.name}
@@ -403,12 +410,15 @@ const Article = () => {
             </Form.Item>
 
             <Form.Item name="source" label="来源" rules={[{ required: true }]}>
-              <Select
-                placeholder="请选择来源！"
-                allowClear
-              >
+              <Select placeholder="请选择来源！" allowClear>
                 {sourceList.map((item: any, key: any) =>
-                  item ? <Option key={key} value={key}>{item}</Option> : ''
+                  item ? (
+                    <Option key={key} value={key}>
+                      {item}
+                    </Option>
+                  ) : (
+                    ''
+                  )
                 )}
               </Select>
             </Form.Item>
@@ -417,9 +427,11 @@ const Article = () => {
               <Button type="primary" htmlType="submit">
                 提交
               </Button>
-              <Button onClick={() => {
-                setIsVisibleEdit(false)
-              }}>
+              <Button
+                onClick={() => {
+                  setIsVisibleEdit(false)
+                }}
+              >
                 取消
               </Button>
             </Form.Item>
@@ -427,13 +439,12 @@ const Article = () => {
         </Modal>
 
         <div className="card-body">
-
           <div className="xsb-operation-menu">
             <Form layout="inline">
               <Form.Item label="文章标题">
                 <Input
                   value={titleVal}
-                  onChange={e => {
+                  onChange={(e) => {
                     setTitleVal(e.target.value)
                   }}
                 />
@@ -442,7 +453,7 @@ const Article = () => {
                 <Select
                   className="select-view"
                   value={statusVal}
-                  onChange={value => {
+                  onChange={(value) => {
                     setStatusVal(value)
                   }}
                 >
@@ -458,7 +469,7 @@ const Article = () => {
                 <Select
                   className="select-view"
                   value={typeVal}
-                  onChange={value => {
+                  onChange={(value) => {
                     setTypeVal(value)
                   }}
                 >
@@ -474,39 +485,44 @@ const Article = () => {
                 <Select
                   className="select-view"
                   value={sourceVal}
-                  onChange={value => {
+                  onChange={(value) => {
                     setSourceVal(value)
                   }}
                 >
                   <Option value="">全部</Option>
                   {sourceList.map((item, key) =>
-                    item ? <Option value={key} key={key}>{item}</Option> : ''
+                    item ? (
+                      <Option value={key} key={key}>
+                        {item}
+                      </Option>
+                    ) : (
+                      ''
+                    )
                   )}
                 </Select>
               </Form.Item>
               <Form.Item>
-                <button
-                  className="btn btn-danger"
-                  onClick={search}
-                >
+                <button className="btn btn-danger" onClick={search}>
                   搜索
-                  </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={resetBarFrom}
-                >
+                </button>
+                <button className="btn btn-primary" onClick={resetBarFrom}>
                   重置
-                  </button>
+                </button>
               </Form.Item>
             </Form>
           </div>
 
-          <Table columns={columns} pagination={{ ...pagination, total }} onChange={handleTableChange} dataSource={tableList} rowKey={record => record.aid} />
+          <Table
+            columns={columns}
+            pagination={{ ...pagination, total }}
+            onChange={handleTableChange}
+            dataSource={tableList}
+            rowKey={(record) => record.aid}
+          />
         </div>
       </div>
     </div>
   )
-
 }
 
 export default Article

@@ -11,6 +11,7 @@ import {
   message,
   Switch,
   InputNumber,
+  DatePicker,
 } from 'antd'
 import {
   DeleteOutlined,
@@ -19,7 +20,6 @@ import {
   CloseCircleOutlined,
 } from '@ant-design/icons'
 import http from '@libs/http'
-
 import {
   statusList,
   statusListText,
@@ -36,7 +36,7 @@ interface editArticleInfo {
   type: String
 }
 
-const DynamicTopic = () => {
+const User = () => {
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -45,6 +45,7 @@ const DynamicTopic = () => {
     wrapperCol: { offset: 8, span: 16 },
   }
   const [tableList, setTableList] = useState([])
+  const [userRoleAll, setUserRoleAll] = useState([])
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -53,7 +54,15 @@ const DynamicTopic = () => {
   const [isVisibleEdit, setIsVisibleEdit] = useState(false)
   const [operationId, setOperationId] = useState('')
   const [isCreate, setIsCreate] = useState(true)
+  const [isBanVisible, setIsBanVisible] = useState(false)
+  const [banDate, setBanDate] = useState('')
   const [form] = Form.useForm()
+
+  useEffect(() => {
+    http.get('/user-role/all').then((res) => {
+      setUserRoleAll(res.data.list)
+    })
+  }, [])
 
   const columns = [
     {
@@ -72,75 +81,79 @@ const DynamicTopic = () => {
       ),
     },
     {
-      title: '专题名',
-      dataIndex: 'name',
-      key: 'name',
+      title: '昵称',
+      dataIndex: 'nickname',
+      key: 'nickname',
     },
     {
-      title: '专题单词',
-      dataIndex: 'en_name',
-      key: 'en_name',
-    },
-    {
-      title: '专题图标地址',
-      dataIndex: 'icon',
-      key: 'icon',
-    },
-    {
-      title: '专题演示',
-      dataIndex: 'icon',
-      key: 'demo',
+      title: '拥有的角色标签',
+      dataIndex: 'user_role_ids',
+      key: 'user_role_ids',
       render: (value: any, record: any) => {
         return (
-          <div className="avatar img-preview">
-            <img className="tag-img-icon" src={record.icon} alt="" />
+          <div className="table-article-tag-view">
+            {userRoleAll.map((item: any, key: any) => {
+              let tags = record.user_role_ids
+                ? record.user_role_ids.split(',')
+                : []
+              return tags.map((childItem: any, childKey: any) => {
+                if (item.user_role_id === childItem) {
+                  return (
+                    <Tag
+                      className="table-article-tag-list"
+                      key={childKey}
+                      color="purple"
+                    >
+                      {item.user_role_name}
+                    </Tag>
+                  )
+                }
+              })
+            })}
           </div>
         )
       },
     },
     {
-      title: '备注',
-      dataIndex: 'description',
-      key: 'description',
-    },
-    {
-      title: '订阅数量',
-      dataIndex: 'rss_count',
-      key: 'rss_count',
-    },
-    {
-      title: '是否首页侧栏显示',
-      dataIndex: 'is_show',
-      key: 'is_show',
+      title: '是否禁言中',
+      dataIndex: 'ft_ban_dt',
+      key: 'ft_ban_dt',
       render: (value: any, record: any) => {
         return (
-          <div className="table-is-login">
-            {record.is_show ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+          <div className="ban">
+            <div>
+              是否被禁：
+              <Tag className="table-article-tag-list" color="orange">
+                {isBan(record.ban_dt) ? 'yes' : 'no'}
+              </Tag>
+            </div>
+            <div>
+              禁言到：
+              {record.ft_ban_dt}（{isBan(record.ban_dt) ? '禁言中' : '已过期'}）
+            </div>
           </div>
         )
       },
     },
     {
-      title: '是否可以用',
+      title: '是否可以登陆',
       dataIndex: 'enable',
       key: 'enable',
       render: (value: any, record: any) => {
         return (
-          <div className="table-is-login">
-            {record.enable ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+          <div className="table-enable">
+            {value ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
           </div>
         )
       },
     },
     {
-      title: '是否加入首页或者推荐',
-      dataIndex: 'is_push',
-      key: 'is_push',
+      title: '贝壳余额',
+      dataIndex: 'user_info',
+      key: 'user_info',
       render: (value: any, record: any) => {
         return (
-          <div className="table-is-login">
-            {record.is_push ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-          </div>
+          <div className="table-enable">{record.user_info.shell_balance}</div>
         )
       },
     },
@@ -149,7 +162,7 @@ const DynamicTopic = () => {
       key: 'action',
       render: (text: any, record: any) => {
         return (
-          <div className="operation-btn">
+          <div className="operation-btn" style={{ width: '200px' }}>
             <button
               onClick={() => {
                 editData(record)
@@ -166,6 +179,15 @@ const DynamicTopic = () => {
             >
               <DeleteOutlined />
             </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setOperationId(record.uid)
+                setIsBanVisible(true)
+              }}
+            >
+              禁言
+            </button>
           </div>
         )
       },
@@ -174,22 +196,23 @@ const DynamicTopic = () => {
 
   const editData = (val: any) => {
     showModal('edit')
-    setOperationId(val.topic_id)
+    setOperationId(val.uid)
     form.setFieldsValue({
       ...val,
+      user_role_ids: val.user_role_ids ? val.user_role_ids.split(',') : [],
     })
   }
 
   const deleteData = (val: any) => {
     confirm({
-      title: '确认要删除此文章吗？',
+      title: '确认要删除此用户吗？',
       content: '此操作不可逆转',
       okText: 'Yes',
 
       cancelText: 'No',
       onOk: () => {
-        fetchDelete(val.topic_id)
-        /*删除文章*/
+        fetchDelete(val.uid)
+        /*删除用户*/
       },
       onCancel() {
         console.log('Cancel')
@@ -197,9 +220,19 @@ const DynamicTopic = () => {
     })
   }
 
+  const isBan = (data: any) => {
+    let date = new Date()
+    let currDate = date.setHours(date.getHours())
+    if (new Date(currDate).getTime() > new Date(data).getTime()) {
+      return false
+    } else {
+      return true
+    }
+  }
+
   const search = useCallback(() => {
     http
-      .get('/dynamic-topic/list', {
+      .get('/user/list', {
         params: {
           page: pagination.current,
           pageSize: pagination.pageSize,
@@ -223,6 +256,7 @@ const DynamicTopic = () => {
     setIsVisibleEdit(true)
     if (val === 'add') {
       setIsCreate(true)
+      form.resetFields()
     } else {
       setIsCreate(false)
     }
@@ -230,7 +264,6 @@ const DynamicTopic = () => {
 
   const onFinish = (values: any) => {
     if (isCreate) {
-      fetchCreate(values)
       form.resetFields()
     } else {
       fetchEdit(values)
@@ -241,35 +274,40 @@ const DynamicTopic = () => {
     console.log('Failed:', errorInfo)
   }
 
-  const fetchCreate = (values: editArticleInfo) => {
-    /*创建动态专题*/
-    http.post('/dynamic-topic/create', { ...values }).then((result: any) => {
-      search()
-      setIsVisibleEdit(false)
-      message.success('创建动态专题成功')
-    })
-  }
-
   const fetchEdit = (values: editArticleInfo) => {
-    /*修改动态专题*/
+    /*修改用户标签*/
     http
-      .post('/dynamic-topic/update', { topic_id: operationId, ...values })
+      .post('/user/edit', { uid: operationId, ...values })
       .then((result: any) => {
         search()
         setIsVisibleEdit(false)
-        message.success('修改动态专题成功')
+        message.success('修改用户标签成功')
       })
   }
 
   const fetchDelete = (values: String) => {
-    /*删除动态专题*/
+    /*删除用户标签*/
+    http.post('/user/delete', { uid: values }).then((result: any) => {
+      search()
+      setIsVisibleEdit(false)
+      message.success('删除用户标签成功')
+    })
+  }
+
+  const banUser = (val: any) => {
     http
-      .post('/dynamic-topic/delete', { topic_id: values })
-      .then((result: any) => {
-        search()
-        setIsVisibleEdit(false)
-        message.success('删除动态专题成功')
+      .post('/user/ban', {
+        uid: operationId,
+        ban_dt: banDate,
       })
+      .then((res) => {
+        setIsBanVisible(false)
+        search()
+      })
+  }
+
+  function onChange(value: any, dateString: any) {
+    setBanDate(dateString)
   }
 
   return (
@@ -280,21 +318,10 @@ const DynamicTopic = () => {
             <span>主页</span>
           </Breadcrumb.Item>
           <Breadcrumb.Item href="#">
-            <span>动态管理</span>
+            <span>用户管理</span>
           </Breadcrumb.Item>
-          <Breadcrumb.Item>动态专题</Breadcrumb.Item>
+          <Breadcrumb.Item>用户汇总 </Breadcrumb.Item>
         </Breadcrumb>
-      </div>
-
-      <div className="layout-nav-btn">
-        <button
-          className="btn btn-danger"
-          onClick={() => {
-            showModal('add')
-          }}
-        >
-          创建动态专题
-        </button>
       </div>
 
       <div className="card">
@@ -304,7 +331,7 @@ const DynamicTopic = () => {
           onCancel={() => {
             setIsVisibleEdit(false)
           }}
-          title={isCreate ? '创建动态专题' : '修改动态专题'}
+          title={isCreate ? '创建用户' : '修改用户'}
           visible={isVisibleEdit}
         >
           <Form
@@ -316,12 +343,12 @@ const DynamicTopic = () => {
             onFinishFailed={onFinishFailed}
           >
             <Form.Item
-              label="专题名"
-              name="name"
+              label="昵称"
+              name="nickname"
               rules={[
                 {
                   required: true,
-                  message: '请输入专题名！',
+                  message: '请输入昵称！',
                   whitespace: true,
                 },
               ]}
@@ -330,100 +357,35 @@ const DynamicTopic = () => {
             </Form.Item>
 
             <Form.Item
-              label="专题名单词"
-              name="en_name"
-              rules={[
-                {
-                  required: true,
-                  message: '请输入专题名单词！',
-                  whitespace: true,
-                },
-              ]}
+              name="user_role_ids"
+              label="用户角色标签"
+              rules={[{ required: true }]}
             >
-              <Input />
+              <Select
+                mode="multiple"
+                placeholder="请选择用户角色标签"
+                allowClear
+              >
+                {userRoleAll.map((item: any) => (
+                  <Option key={item.user_role_id} value={item.user_role_id}>
+                    {item.user_role_name}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
 
             <Form.Item
-              label="专题图标地址"
-              name="icon"
-              rules={[
-                {
-                  required: true,
-                  message: '请输入专题图标地址！',
-                  whitespace: true,
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-
-            <Form.Item
-              label="专题描述"
-              name="description"
-              rules={[
-                {
-                  required: true,
-                  message: '请输入专题描述',
-                  whitespace: true,
-                },
-              ]}
-            >
-              <Input.TextArea />
-            </Form.Item>
-
-            <Form.Item
-              label="首页显示"
-              name="is_show"
-              valuePropName="checked"
-              rules={[
-                {
-                  required: true,
-                  message: '请选择是否首页显示',
-                },
-              ]}
-            >
-              <Switch />
-            </Form.Item>
-
-            <Form.Item
-              label="是否有效"
+              label="是否可登录"
               name="enable"
               valuePropName="checked"
               rules={[
                 {
                   required: true,
-                  message: '请选择是否有效',
+                  message: '请选择是否可登录',
                 },
               ]}
             >
               <Switch />
-            </Form.Item>
-
-            <Form.Item
-              label="是否加入首页或者推荐"
-              name="is_push"
-              valuePropName="checked"
-              rules={[
-                {
-                  required: true,
-                  message: '请选择是否加入首页或者推荐',
-                },
-              ]}
-            >
-              <Switch />
-            </Form.Item>
-
-            <Form.Item
-              name="sort"
-              label="排序"
-              rules={[
-                {
-                  required: true,
-                  message: '请输入排序',
-                },
-              ]}
-            >
-              <InputNumber min={0} max={50} />
             </Form.Item>
 
             <Form.Item {...tailLayout}>
@@ -448,13 +410,32 @@ const DynamicTopic = () => {
           </Form>
         </Modal>
 
+        <Modal
+          onOk={() => {
+            banUser({ type: 'article' })
+          }}
+          onCancel={() => {
+            setIsBanVisible(false)
+          }}
+          title="禁言用户"
+          visible={isBanVisible}
+        >
+          <div>
+            <DatePicker
+              onChange={onChange}
+              format="YYYY-MM-DD HH:mm:ss"
+              defaultValue={undefined}
+            />
+          </div>
+        </Modal>
+
         <div className="card-body">
           <Table
             columns={columns}
             pagination={{ ...pagination, total }}
             onChange={handleTableChange}
             dataSource={tableList}
-            rowKey={(record) => record.id}
+            rowKey={(record) => record.uid}
           />
         </div>
       </div>
@@ -462,4 +443,4 @@ const DynamicTopic = () => {
   )
 }
 
-export default DynamicTopic
+export default User

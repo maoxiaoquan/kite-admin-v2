@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Table, Tag, Breadcrumb, Form, Select, Input, Modal, Button, message } from 'antd'
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Tag,
+  Breadcrumb,
+  Form,
+  Select,
+  Input,
+  Modal,
+  Button,
+  message,
+} from 'antd'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import http from '@libs/http'
 
 import {
@@ -10,7 +20,7 @@ import {
   otherStatusList,
   otherStatusListText,
   dynamicTypeText,
-  dynamicType
+  dynamicType,
 } from '@utils/constant'
 const Option = Select.Option
 const confirm = Modal.confirm
@@ -23,14 +33,13 @@ interface editArticleInfo {
 }
 
 const Dynamic = () => {
-
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
-  };
+  }
   const tailLayout = {
     wrapperCol: { offset: 8, span: 16 },
-  };
+  }
   const [contentVal, setContentVal] = useState('')
   const [statusVal, setStatusVal] = useState('')
   const [typeVal, setTypeVal] = useState('')
@@ -43,17 +52,16 @@ const Dynamic = () => {
   const [total, setTotal] = useState(0)
   const [isVisibleEdit, setIsVisibleEdit] = useState(false)
   const [formData, setFormData] = useState({
-    status: 0
+    status: 0,
   })
   const [operationId, setOperationId] = useState('')
-  const [form] = Form.useForm();
+  const [form] = Form.useForm()
 
   useEffect(() => {
-    http.get('/dynamic-topic/all').then(res => {
+    http.get('/dynamic-topic/all').then((res) => {
       setDynamicTopicAll(res.data.all)
     })
   }, [])
-
 
   const columns = [
     {
@@ -64,12 +72,12 @@ const Dynamic = () => {
         <span
           style={{
             width: '20px',
-            display: 'block'
+            display: 'block',
           }}
         >
           {(pagination.current - 1) * 10 + index + 1}
         </span>
-      )
+      ),
     },
     {
       title: '内容',
@@ -79,12 +87,12 @@ const Dynamic = () => {
         <a href={`/dynamic/${record.id}`} className="dynamic-content">
           {record.content}
         </a>
-      )
+      ),
     },
     {
       title: '创建时间',
       dataIndex: 'create_dt',
-      key: 'create_dt'
+      key: 'create_dt',
     },
     {
       title: '状态',
@@ -94,7 +102,7 @@ const Dynamic = () => {
         <Tag className="table-article-tag-list" color="red">
           {otherStatusListText[record.status]}
         </Tag>
-      )
+      ),
     },
     {
       title: '类型',
@@ -104,7 +112,7 @@ const Dynamic = () => {
         <Tag className="table-article-tag-list" color="red">
           {dynamicTypeText[record.type]}
         </Tag>
-      )
+      ),
     },
     {
       title: '所属话题',
@@ -128,7 +136,7 @@ const Dynamic = () => {
             })}
           </div>
         )
-      }
+      },
     },
     {
       title: '预览',
@@ -138,10 +146,10 @@ const Dynamic = () => {
         <div
           className="img-preview"
           dangerouslySetInnerHTML={{
-            __html: renderAttach(record) || ''
+            __html: renderAttach(record) || '',
           }}
         />
-      )
+      ),
     },
     {
       title: '评论数',
@@ -151,7 +159,7 @@ const Dynamic = () => {
         <Tag className="table-article-tag-list" color="green">
           {record.comment_count}
         </Tag>
-      )
+      ),
     },
     {
       title: '拒绝的原因',
@@ -163,7 +171,7 @@ const Dynamic = () => {
             ? record.rejection_reason
             : ''}
         </div>
-      )
+      ),
     },
     {
       title: '操作',
@@ -189,10 +197,9 @@ const Dynamic = () => {
             </button>
           </div>
         )
-      }
-    }
-  ];
-
+      },
+    },
+  ]
 
   const editData = (val: any) => {
     setIsVisibleEdit(true)
@@ -201,8 +208,8 @@ const Dynamic = () => {
       status: String(val.status),
       type: String(val.type),
       rejection_reason: val.rejection_reason,
-      topic_ids: val.topic_ids
-    });
+      topic_ids: val.topic_ids,
+    })
   }
 
   const deleteData = (val: any) => {
@@ -210,7 +217,7 @@ const Dynamic = () => {
       title: '确认要删除此动态吗？',
       content: '此操作不可逆转',
       okText: 'Yes',
-      okType: 'danger',
+
       cancelText: 'No',
       onOk: () => {
         fetchDelete(val.id)
@@ -218,18 +225,19 @@ const Dynamic = () => {
       },
       onCancel() {
         console.log('Cancel')
-      }
+      },
     })
   }
 
   const search = useCallback(() => {
-    http.post('/dynamic/list', {
-      content: contentVal,
-      status: statusVal,
-      type: typeVal,
-      page: pagination.current,
-      pageSize: pagination.pageSize,
-    })
+    http
+      .post('/dynamic/list', {
+        content: contentVal,
+        status: statusVal,
+        type: typeVal,
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+      })
       .then((result: any) => {
         setTableList(result.data.list)
         setTotal(result.data.count)
@@ -237,12 +245,13 @@ const Dynamic = () => {
   }, [contentVal, pagination, statusVal, typeVal])
 
   useEffect(() => {
-    http.post('/dynamic/list', {
-      status: statusVal,
-      type: typeVal,
-      page: pagination.current,
-      pageSize: pagination.pageSize,
-    })
+    http
+      .post('/dynamic/list', {
+        status: statusVal,
+        type: typeVal,
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+      })
       .then((result: any) => {
         setTableList(result.data.list)
         setTotal(result.data.count)
@@ -257,16 +266,15 @@ const Dynamic = () => {
 
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {
     setPagination(pagination)
-  };
-
+  }
 
   const onFinish = (values: any) => {
     fetchEdit(values)
-  };
+  }
 
   const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo);
-  };
+    console.log('Failed:', errorInfo)
+  }
 
   const imgAnalyze = (attach: string) => {
     let urlArr = attach.split(',') || []
@@ -291,11 +299,13 @@ const Dynamic = () => {
 
   const fetchEdit = (values: editArticleInfo) => {
     /*修改文章*/
-    http.post('/dynamic/update', { id: operationId, ...values }).then((result: any) => {
-      search()
-      setIsVisibleEdit(false)
-      message.success('修改动态成功');
-    })
+    http
+      .post('/dynamic/update', { id: operationId, ...values })
+      .then((result: any) => {
+        search()
+        setIsVisibleEdit(false)
+        message.success('修改动态成功')
+      })
   }
 
   const fetchDelete = (values: String) => {
@@ -303,16 +313,16 @@ const Dynamic = () => {
     http.post('/dynamic/delete', { id: values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('删除动态成功');
+      message.success('删除动态成功')
     })
   }
 
   const onGenderChange = (value: any) => {
     setFormData({
       ...formData,
-      status: value
+      status: value,
     })
-  };
+  }
 
   return (
     <div className="layout-main">
@@ -328,7 +338,6 @@ const Dynamic = () => {
         </Breadcrumb>
       </div>
       <div className="card">
-
         <Modal
           footer={null}
           getContainer={false}
@@ -360,23 +369,26 @@ const Dynamic = () => {
               </Select>
             </Form.Item>
 
-            {formData.status == statusList.reviewFail ? (<Form.Item
-              label="拒绝的原因"
-              name="rejection_reason"
-              rules={[{
-                required: true,
-                message: '请输入拒绝的原因！',
-                whitespace: true
-              }]}
-            >
-              <Input />
-            </Form.Item>) : ''}
+            {formData.status == statusList.reviewFail ? (
+              <Form.Item
+                label="拒绝的原因"
+                name="rejection_reason"
+                rules={[
+                  {
+                    required: true,
+                    message: '请输入拒绝的原因！',
+                    whitespace: true,
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            ) : (
+              ''
+            )}
 
             <Form.Item name="type" label="类型" rules={[{ required: true }]}>
-              <Select
-                placeholder="请选择类型！"
-                allowClear
-              >
+              <Select placeholder="请选择类型！" allowClear>
                 {Object.keys(dynamicTypeText).map((key: any) => (
                   <Option key={key} value={key}>
                     {dynamicTypeText[key]}
@@ -385,11 +397,12 @@ const Dynamic = () => {
               </Select>
             </Form.Item>
 
-            <Form.Item name="topic_ids" label="所属专题" rules={[{ required: true }]}>
-              <Select
-                placeholder="请选择所属专题"
-                allowClear
-              >
+            <Form.Item
+              name="topic_ids"
+              label="所属专题"
+              rules={[{ required: true }]}
+            >
+              <Select placeholder="请选择所属专题" allowClear>
                 {dynamicTopicAll.map((item: any) => (
                   <Option key={item.topic_id} value={item.topic_id}>
                     {item.name}
@@ -402,9 +415,11 @@ const Dynamic = () => {
               <Button type="primary" htmlType="submit">
                 提交
               </Button>
-              <Button onClick={() => {
-                setIsVisibleEdit(false)
-              }}>
+              <Button
+                onClick={() => {
+                  setIsVisibleEdit(false)
+                }}
+              >
                 取消
               </Button>
             </Form.Item>
@@ -412,13 +427,12 @@ const Dynamic = () => {
         </Modal>
 
         <div className="card-body">
-
           <div className="xsb-operation-menu">
             <Form layout="inline">
               <Form.Item label="动态内容">
                 <Input
                   value={contentVal}
-                  onChange={e => {
+                  onChange={(e) => {
                     setContentVal(e.target.value)
                   }}
                 />
@@ -427,7 +441,7 @@ const Dynamic = () => {
                 <Select
                   className="select-view"
                   value={statusVal}
-                  onChange={value => {
+                  onChange={(value) => {
                     setStatusVal(value)
                   }}
                 >
@@ -443,7 +457,7 @@ const Dynamic = () => {
                 <Select
                   className="select-view"
                   value={typeVal}
-                  onChange={value => {
+                  onChange={(value) => {
                     setTypeVal(value)
                   }}
                 >
@@ -457,28 +471,27 @@ const Dynamic = () => {
               </Form.Item>
 
               <Form.Item>
-                <button
-                  className="btn btn-danger"
-                  onClick={search}
-                >
+                <button className="btn btn-danger" onClick={search}>
                   搜索
-                  </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={resetBarFrom}
-                >
+                </button>
+                <button className="btn btn-primary" onClick={resetBarFrom}>
                   重置
-                  </button>
+                </button>
               </Form.Item>
             </Form>
           </div>
 
-          <Table columns={columns} pagination={{ ...pagination, total }} onChange={handleTableChange} dataSource={tableList} rowKey={record => record.aid} />
+          <Table
+            columns={columns}
+            pagination={{ ...pagination, total }}
+            onChange={handleTableChange}
+            dataSource={tableList}
+            rowKey={(record) => record.aid}
+          />
         </div>
       </div>
     </div>
   )
-
 }
 
 export default Dynamic
