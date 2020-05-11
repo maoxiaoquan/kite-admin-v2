@@ -66,7 +66,15 @@ const UserRole = lazy(() =>
 )
 
 const UserAuthority = lazy(() =>
-  import(/* webpackChunkName: "UserAuthority" */ '@views/UserAuthority/UserAuthority')
+  import(
+    /* webpackChunkName: "UserAuthority" */ '@views/UserAuthority/UserAuthority'
+  )
+)
+
+const UserAvatarReview = lazy(() =>
+  import(
+    /* webpackChunkName: "UserAvatarReview" */ '@views/UserAvatarReview/UserAvatarReview'
+  )
 )
 
 export default [
@@ -206,6 +214,14 @@ export default [
         element: (
           <Suspense fallback={<Loading />}>
             <UserAuthority />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'user-avatar-review',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <UserAvatarReview />
           </Suspense>
         ),
       },

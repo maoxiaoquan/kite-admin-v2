@@ -7,18 +7,21 @@ import {
   Select,
   Input,
   Modal,
+  Tree,
   Button,
   message,
   Switch,
+  InputNumber,
 } from 'antd'
 import {
   DeleteOutlined,
   EditOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  PlusSquareOutlined,
 } from '@ant-design/icons'
 import http from '@libs/http'
-
+import './UserAuthority.scss'
 import {
   statusList,
   statusListText,
@@ -54,7 +57,14 @@ const UserAuthority = () => {
   const [isCreate, setIsCreate] = useState(true)
   const [form] = Form.useForm()
   const [userAuthorityList, setUserAuthorityList] = useState<string[]>([])
+  const [roleAuthorityList, setRoleAuthorityList] = useState<string[]>([])
   const [userAuthoritySourceList, setUserAuthoritySourceList] = useState([])
+  const [roleAuthorityListAll, setRoleAuthorityListAll] = useState<string[]>([])
+  const [authorityParent, setAuthorityParent] = useState({
+    authority_parent_id: '',
+    authority_parent_name: '',
+  })
+  const [authorityType, setAuthorityType] = useState(0)
 
   const filterArray = useCallback((result: any, pid: any) => {
     let _array: any[] = []
@@ -72,20 +82,20 @@ const UserAuthority = () => {
       setUserAuthoritySourceList(result.data)
       const arr: any[] = filterArray(result.data, '')
       setUserAuthorityList(arr)
-      console.log('userAuthorityList', userAuthorityList)
     })
   }, [filterArray, userAuthorityList])
 
   useEffect(() => {
-    // fetchUserRoleList()
-  }, [fetchUserRoleList])
+    fetchUserRoleList()
+  }, [])
 
   const editData = (val: any) => {
-    showModal('edit')
-    setOperationId(val.tag_id)
+    showModal('edit', val)
+    setOperationId(val.authority_id)
     form.setFieldsValue({
       ...val,
     })
+    setAuthorityType(val.authority_type)
   }
 
   const deleteData = (val: any) => {
@@ -96,7 +106,7 @@ const UserAuthority = () => {
 
       cancelText: 'No',
       onOk: () => {
-        fetchDelete(val.tag_id)
+        fetchDelete(val)
         /*删除文章*/
       },
       onCancel() {
@@ -105,33 +115,23 @@ const UserAuthority = () => {
     })
   }
 
-  const search = useCallback(() => {
-    http
-      .get('/user-authority/list', {
-        params: {
-          page: pagination.current,
-          pageSize: pagination.pageSize,
-        },
-      })
-      .then((result: any) => {
-        setTableList(result.data.list)
-        setTotal(result.data.count)
-      })
-  }, [pagination])
-
-  useEffect(() => {
-    search()
-  }, [search])
-
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {
     setPagination(pagination)
   }
 
-  const showModal = (val: string) => {
+  const showModal = (val: string, data: any) => {
     setIsVisibleEdit(true)
     if (val === 'add') {
+      setAuthorityParent({
+        authority_parent_id: data.authority_id || '',
+        authority_parent_name: data.authority_name || '',
+      })
       setIsCreate(true)
     } else {
+      setAuthorityParent({
+        authority_parent_id: data.authority_parent_id || '',
+        authority_parent_name: data.authority_parent_name || '',
+      })
       setIsCreate(false)
     }
   }
@@ -151,19 +151,21 @@ const UserAuthority = () => {
 
   const fetchCreate = (values: editArticleInfo) => {
     /*创建用户权限*/
-    http.post('/user-authority/create', { ...values }).then((result: any) => {
-      search()
-      setIsVisibleEdit(false)
-      message.success('创建用户权限成功')
-    })
+    http
+      .post('/user-authority/create', { ...values, ...authorityParent })
+      .then((result: any) => {
+        fetchUserRoleList()
+        setIsVisibleEdit(false)
+        message.success('创建用户权限成功')
+      })
   }
 
   const fetchEdit = (values: editArticleInfo) => {
     /*修改用户权限*/
     http
-      .post('/user-authority/update', { tag_id: operationId, ...values })
+      .post('/user-authority/update', { authority_id: operationId, ...values })
       .then((result: any) => {
-        search()
+        fetchUserRoleList()
         setIsVisibleEdit(false)
         message.success('修改用户权限成功')
       })
@@ -171,15 +173,90 @@ const UserAuthority = () => {
 
   const fetchDelete = (values: String) => {
     /*删除用户权限*/
-    http.post('/user-authority/delete', { tag_id: values }).then((result: any) => {
-      search()
-      setIsVisibleEdit(false)
-      message.success('删除用户权限成功')
+    let id_arr = traversalDelete(values)
+    http
+      .post('/user-authority/delete', { authority_id_arr: id_arr })
+      .then((result: any) => {
+        fetchUserRoleList()
+        setIsVisibleEdit(false)
+        message.success('删除用户权限成功')
+      })
+  }
+
+  const isEmpty = (obj: any) => {
+    var key
+    for (key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        return false
+      }
+    }
+    return true
+  }
+
+  const traversalDelete = (val: any) => {
+    let _arr = []
+
+    function id_arr(data: any) {
+      for (let i in data) {
+        _arr.push(data[i].authority_id)
+        if (!isEmpty(data[i].children)) {
+          id_arr(data[i].children)
+        }
+      }
+    }
+
+    _arr.push(val.authority_id)
+    if (!isEmpty(val.children)) {
+      id_arr(val.children)
+    }
+    return _arr
+  }
+
+  const customLabel = (data: any) => {
+    return (
+      <div className="box-tree-title clearfix">
+        <div className="pull-left">
+          <span className="title">{data.authority_name} </span>
+        </div>
+        <div className="pull-right">
+          <Button
+            size={'small'}
+            onClick={() => {
+              showModal('add', data)
+            }}
+          >
+            <PlusSquareOutlined />
+          </Button>
+          <Button
+            size={'small'}
+            onClick={() => {
+              editData(data)
+            }}
+          >
+            <EditOutlined />
+          </Button>
+          <Button size={'small'} onClick={() => deleteData(data)}>
+            <DeleteOutlined />
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  const treeDataFormate = (data: any[]) =>
+    data.map((item) => {
+      item.key = item.authority_id
+      item.title = customLabel(item)
+      if (item.children?.length) item.children = treeDataFormate(item.children)
+      return item
     })
+
+  const authorityTypeChange = (val: any) => {
+    setAuthorityType(val)
   }
 
   return (
-    <div className="layout-main">
+    <div className="layout-main admin-authority">
       <div className="layout-main-title">
         <Breadcrumb>
           <Breadcrumb.Item href="#/manager/index">
@@ -196,10 +273,10 @@ const UserAuthority = () => {
         <button
           className="btn btn-danger"
           onClick={() => {
-            showModal('add')
+            showModal('add', {})
           }}
         >
-          创建标签
+          创建用户权限
         </button>
       </div>
 
@@ -210,7 +287,7 @@ const UserAuthority = () => {
           onCancel={() => {
             setIsVisibleEdit(false)
           }}
-          title={isCreate ? '创建标签' : '修改标签'}
+          title={isCreate ? '创建用户权限' : '修改用户权限'}
           visible={isVisibleEdit}
         >
           <Form
@@ -221,13 +298,21 @@ const UserAuthority = () => {
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
           >
+            {authorityParent.authority_parent_name ? (
+              <Form.Item label="父权限名称">
+                <Input disabled value={authorityParent.authority_parent_name} />
+              </Form.Item>
+            ) : (
+              ''
+            )}
+
             <Form.Item
-              label="标签名"
-              name="name"
+              label="权限名称"
+              name="authority_name"
               rules={[
                 {
                   required: true,
-                  message: '请输入标签名！',
+                  message: '请输入权限名称！',
                   whitespace: true,
                 },
               ]}
@@ -236,12 +321,75 @@ const UserAuthority = () => {
             </Form.Item>
 
             <Form.Item
-              label="标签名单词"
-              name="en_name"
+              label="权限类型"
+              name="authority_type"
               rules={[
                 {
                   required: true,
-                  message: '请输入标签单词！',
+                  message: '请选择权限类型！',
+                  whitespace: true,
+                },
+              ]}
+            >
+              <Select onChange={authorityTypeChange}>
+                <Option value="1">基础菜单</Option>
+                <Option value="2">操作和功能</Option>
+              </Select>
+            </Form.Item>
+
+            {authorityType == 2 ? (
+              <Form.Item
+                label="权限路径"
+                name="authority_url"
+                rules={[
+                  {
+                    required: true,
+                    message: '请输入权限路径！',
+                    whitespace: true,
+                  },
+                ]}
+              >
+                <Input
+                  addonBefore="/api-client/v1"
+                  placeholder="请输入权限路径"
+                />
+              </Form.Item>
+            ) : (
+              <Form.Item
+                label="权限Key"
+                name="authority_url"
+                rules={[
+                  {
+                    required: true,
+                    message: '请输入权限Key',
+                    whitespace: true,
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            )}
+
+            <Form.Item
+              name="authority_sort"
+              label="排序"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入排序',
+                },
+              ]}
+            >
+              <InputNumber min={0} max={50} />
+            </Form.Item>
+
+            <Form.Item
+              label="权限描述"
+              name="authority_description"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入权限描述',
                   whitespace: true,
                 },
               ]}
@@ -249,61 +397,23 @@ const UserAuthority = () => {
               <Input />
             </Form.Item>
 
-            <Form.Item
-              label="标签图标地址"
-              name="icon"
-              rules={[
-                {
-                  required: true,
-                  message: '请输入标签图标！',
-                  whitespace: true,
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-
-            <Form.Item
-              label="标签描述"
-              name="description"
-              rules={[
-                {
-                  required: true,
-                  message: '请输入标签描述',
-                  whitespace: true,
-                },
-              ]}
-            >
-              <Input.TextArea />
-            </Form.Item>
-
-            <Form.Item
-              label="是否有效"
-              name="enable"
-              valuePropName="checked"
-              rules={[
-                {
-                  required: true,
-                  message: '请选择是否有效',
-                },
-              ]}
-            >
-              <Switch />
-            </Form.Item>
-
-            <Form.Item
-              label="文章是否加入首页或者推荐"
-              name="is_push"
-              valuePropName="checked"
-              rules={[
-                {
-                  required: true,
-                  message: '请选择文章是否加入首页或者推荐',
-                },
-              ]}
-            >
-              <Switch />
-            </Form.Item>
+            {authorityType == 2 ? (
+              <Form.Item
+                label="是否显示"
+                name="enable"
+                valuePropName="checked"
+                rules={[
+                  {
+                    required: true,
+                    message: '请选择是否显示',
+                  },
+                ]}
+              >
+                <Switch />
+              </Form.Item>
+            ) : (
+              ''
+            )}
 
             <Form.Item {...tailLayout}>
               {isCreate ? (
@@ -311,10 +421,10 @@ const UserAuthority = () => {
                   创建
                 </Button>
               ) : (
-                  <Button type="primary" htmlType="submit">
-                    修改
-                  </Button>
-                )}
+                <Button type="primary" htmlType="submit">
+                  修改
+                </Button>
+              )}
 
               <Button
                 onClick={() => {
@@ -328,7 +438,11 @@ const UserAuthority = () => {
         </Modal>
 
         <div className="card-body">
-
+          <Tree
+            defaultExpandAll={true}
+            showLine
+            treeData={treeDataFormate(userAuthorityList)}
+          ></Tree>
         </div>
       </div>
     </div>
