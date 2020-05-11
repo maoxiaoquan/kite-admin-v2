@@ -65,6 +65,10 @@ const UserRole = lazy(() =>
   import(/* webpackChunkName: "UserRole" */ '@views/UserRole/UserRole')
 )
 
+const UserAuthority = lazy(() =>
+  import(/* webpackChunkName: "UserAuthority" */ '@views/UserAuthority/UserAuthority')
+)
+
 export default [
   { path: '/', element: <Index /> },
   // These are the same as the props you provide to <Route>
@@ -194,6 +198,14 @@ export default [
         element: (
           <Suspense fallback={<Loading />}>
             <UserRole />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'user-authority',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <UserAuthority />
           </Suspense>
         ),
       },
