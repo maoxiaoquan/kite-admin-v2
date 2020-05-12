@@ -10,12 +10,15 @@ import {
   Button,
   message,
   Switch,
+  Upload,
 } from 'antd'
 import {
   DeleteOutlined,
   EditOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
+  LoadingOutlined,
+  PlusOutlined,
 } from '@ant-design/icons'
 import http from '@libs/http'
 
@@ -52,6 +55,7 @@ const Picture = () => {
   const [isVisibleEdit, setIsVisibleEdit] = useState(false)
   const [operationId, setOperationId] = useState('')
   const [isCreate, setIsCreate] = useState(true)
+  const [imageUrl, setImageUrl] = useState('')
   const [form] = Form.useForm()
 
   const columns = [
@@ -71,53 +75,36 @@ const Picture = () => {
       ),
     },
     {
-      title: '标签名',
-      dataIndex: 'name',
-      key: 'name',
+      title: '图片标题',
+      dataIndex: 'picture_title',
+      key: 'picture_title',
     },
     {
-      title: '标签单词',
-      dataIndex: 'en_name',
-      key: 'en_name',
-    },
-    {
-      title: '标签图标地址',
-      dataIndex: 'icon',
-      key: 'icon',
-    },
-    {
-      title: '标签演示',
-      dataIndex: 'icon',
-      key: 'article_tag_demo',
-      render: (value: any, record: any) => {
-        return (
-          <div className="avatar img-preview">
-            <img className="tag-img-icon" src={record.icon} alt="" />
-          </div>
-        )
-      },
-    },
-    {
-      title: '备注',
+      title: '图片说明',
       dataIndex: 'description',
       key: 'description',
     },
     {
-      title: '是否可以用',
-      dataIndex: 'enable',
-      key: 'enable',
+      title: '图片地址',
+      dataIndex: 'picture_url',
+      key: 'picture_url',
+    },
+    {
+      title: '图片演示',
+      dataIndex: 'picture_url',
+      key: 'picture_show',
       render: (value: any, record: any) => {
         return (
-          <div className="table-is-login">
-            {value ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+          <div className="avatar img-preview">
+            <img src={record.picture_url} alt="" />
           </div>
         )
       },
     },
     {
-      title: '文章是否加入首页或者推荐',
-      dataIndex: 'is_push',
-      key: 'is_push',
+      title: '是否可用',
+      dataIndex: 'enable',
+      key: 'enable',
       render: (value: any, record: any) => {
         return (
           <div className="table-is-login">
@@ -156,7 +143,7 @@ const Picture = () => {
 
   const editData = (val: any) => {
     showModal('edit')
-    setOperationId(val.tag_id)
+    setOperationId(val.picture_id)
     form.setFieldsValue({
       ...val,
     })
@@ -164,14 +151,14 @@ const Picture = () => {
 
   const deleteData = (val: any) => {
     confirm({
-      title: '确认要删除此文章吗？',
+      title: '确认要删除此图片吗？',
       content: '此操作不可逆转',
       okText: 'Yes',
 
       cancelText: 'No',
       onOk: () => {
-        fetchDelete(val.tag_id)
-        /*删除文章*/
+        fetchDelete(val.picture_id)
+        /*删除图片*/
       },
       onCancel() {
         console.log('Cancel')
@@ -181,7 +168,7 @@ const Picture = () => {
 
   const search = useCallback(() => {
     http
-      .get('/article-tag/list', {
+      .get('/picture/list', {
         params: {
           page: pagination.current,
           pageSize: pagination.pageSize,
@@ -224,32 +211,71 @@ const Picture = () => {
   }
 
   const fetchCreate = (values: editArticleInfo) => {
-    /*创建文章标签*/
-    http.post('/article-tag/create', { ...values }).then((result: any) => {
+    /*创建图片*/
+    http.post('/picture/create', { ...values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('创建文章标签成功')
+      message.success('创建图片成功')
     })
   }
 
   const fetchEdit = (values: editArticleInfo) => {
-    /*修改文章标签*/
+    /*修改图片*/
     http
-      .post('/article-tag/update', { tag_id: operationId, ...values })
+      .post('/picture/update', { picture_id: operationId, ...values })
       .then((result: any) => {
         search()
         setIsVisibleEdit(false)
-        message.success('修改文章标签成功')
+        message.success('修改图片成功')
       })
   }
 
   const fetchDelete = (values: String) => {
-    /*删除文章标签*/
-    http.post('/article-tag/delete', { tag_id: values }).then((result: any) => {
+    /*删除图片*/
+    http.post('/picture/delete', { picture_id: values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('删除文章标签成功')
+      message.success('删除图片成功')
     })
+  }
+
+  function beforeUpload(file: any) {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG/PNG file!')
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2
+    if (!isLt2M) {
+      message.error('Image must smaller than 2MB!')
+    }
+    return isJpgOrPng && isLt2M
+  }
+
+  function getBase64(img: any, callback: any) {
+    const reader = new FileReader()
+    reader.addEventListener('load', () => callback(reader.result))
+    reader.readAsDataURL(img)
+  }
+
+  const handleChange = (info: any) => {
+    console.log('info', info)
+    if (info.file.status === 'uploading') {
+      return
+    }
+    if (info.file.status === 'done') {
+      // Get this url from response in real world.
+      getBase64(info.file.originFileObj, (imageUrl: any) =>
+        setImageUrl(info.file.response.data.filename)
+      )
+    }
+  }
+
+  const normFile = (e: any) => {
+    console.log('Upload event:', e)
+    if (Array.isArray(e)) {
+      return e
+    }
+    return e && e.fileList
   }
 
   return (
@@ -260,9 +286,9 @@ const Picture = () => {
             <span>主页</span>
           </Breadcrumb.Item>
           <Breadcrumb.Item href="#">
-            <span>文章管理</span>
+            <span>网站管理</span>
           </Breadcrumb.Item>
-          <Breadcrumb.Item>文章标签</Breadcrumb.Item>
+          <Breadcrumb.Item>图片</Breadcrumb.Item>
         </Breadcrumb>
       </div>
 
@@ -273,7 +299,7 @@ const Picture = () => {
             showModal('add')
           }}
         >
-          创建标签
+          创建图片
         </button>
       </div>
 
@@ -296,12 +322,12 @@ const Picture = () => {
             onFinishFailed={onFinishFailed}
           >
             <Form.Item
-              label="标签名"
-              name="name"
+              label="图片标题"
+              name="picture_title"
               rules={[
                 {
                   required: true,
-                  message: '请输入标签名！',
+                  message: '请输入图片标题！',
                   whitespace: true,
                 },
               ]}
@@ -310,45 +336,17 @@ const Picture = () => {
             </Form.Item>
 
             <Form.Item
-              label="标签名单词"
-              name="en_name"
-              rules={[
-                {
-                  required: true,
-                  message: '请输入标签单词！',
-                  whitespace: true,
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-
-            <Form.Item
-              label="标签图标地址"
-              name="icon"
-              rules={[
-                {
-                  required: true,
-                  message: '请输入标签图标！',
-                  whitespace: true,
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-
-            <Form.Item
-              label="标签描述"
+              label="图片说明"
               name="description"
               rules={[
                 {
                   required: true,
-                  message: '请输入标签描述',
+                  message: '图片说明！',
                   whitespace: true,
                 },
               ]}
             >
-              <Input.TextArea />
+              <Input />
             </Form.Item>
 
             <Form.Item
@@ -366,17 +364,28 @@ const Picture = () => {
             </Form.Item>
 
             <Form.Item
-              label="文章是否加入首页或者推荐"
-              name="is_push"
-              valuePropName="checked"
-              rules={[
-                {
-                  required: true,
-                  message: '请选择文章是否加入首页或者推荐',
-                },
-              ]}
+              name="picture_url"
+              label="Upload"
+              getValueFromEvent={normFile}
+              valuePropName="fileList"
+              extra="long"
             >
-              <Switch />
+              <Upload
+                name="file"
+                listType="picture-card"
+                className="avatar-uploader"
+                showUploadList={false}
+                action="/api-admin/v1/upload/picture"
+                headers={{ 'x-access-token': localStorage.box_tokens }}
+                beforeUpload={beforeUpload}
+                onChange={handleChange}
+              >
+                {imageUrl ? (
+                  <img src={imageUrl} alt="img" style={{ width: '100%' }} />
+                ) : (
+                  <div className="ant-upload-text">Upload</div>
+                )}
+              </Upload>
             </Form.Item>
 
             <Form.Item {...tailLayout}>
@@ -407,7 +416,7 @@ const Picture = () => {
             pagination={{ ...pagination, total }}
             onChange={handleTableChange}
             dataSource={tableList}
-            rowKey={(record) => record.id}
+            rowKey={(record) => record.picture_id}
           />
         </div>
       </div>
