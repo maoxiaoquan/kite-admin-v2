@@ -62,7 +62,7 @@ const UserRole = () => {
   const [roleAuthorityListAll, setRoleAuthorityListAll] = useState<string[]>([])
   const [form] = Form.useForm()
 
-  const filterArray = (result: any, pid: any) => {
+  const filterArray = useCallback((result: any, pid: any) => {
     let _array: any[] = []
     for (let i in result) {
       if (result[i].authority_parent_id == pid) {
@@ -71,20 +71,19 @@ const UserRole = () => {
       }
     }
     return _array
-  }
+  }, [])
 
-  const fetchUserRoleList = () => {
+  const fetchUserRoleList = useCallback(() => {
     http.get('/user-authority/list').then((result: any) => {
       setUserAuthoritySourceList(result.data)
       const arr: any[] = filterArray(result.data, '')
       setUserAuthorityList(arr)
-      console.log('userAuthorityList', userAuthorityList)
     })
-  }
+  }, [filterArray])
 
   useEffect(() => {
     fetchUserRoleList()
-  }, [])
+  }, [fetchUserRoleList])
 
   const columns = [
     {

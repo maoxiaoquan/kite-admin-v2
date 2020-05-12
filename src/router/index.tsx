@@ -77,6 +77,16 @@ const UserAvatarReview = lazy(() =>
   )
 )
 
+const WebsiteConfig = lazy(() =>
+  import(
+    /* webpackChunkName: "WebsiteConfig" */ '@views/WebsiteConfig/WebsiteConfig'
+  )
+)
+
+const Picture = lazy(() =>
+  import(/* webpackChunkName: "Picture" */ '@views/Picture/Picture')
+)
+
 export default [
   { path: '/', element: <Index /> },
   // These are the same as the props you provide to <Route>
@@ -222,6 +232,22 @@ export default [
         element: (
           <Suspense fallback={<Loading />}>
             <UserAvatarReview />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'website-config',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <WebsiteConfig />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'picture',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <Picture />
           </Suspense>
         ),
       },

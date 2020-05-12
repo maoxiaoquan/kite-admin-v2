@@ -83,11 +83,11 @@ const UserAuthority = () => {
       const arr: any[] = filterArray(result.data, '')
       setUserAuthorityList(arr)
     })
-  }, [filterArray, userAuthorityList])
+  }, [filterArray])
 
   useEffect(() => {
     fetchUserRoleList()
-  }, [])
+  }, [fetchUserRoleList])
 
   const editData = (val: any) => {
     showModal('edit', val)

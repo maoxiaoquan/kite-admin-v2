@@ -35,7 +35,7 @@ interface editArticleInfo {
   type: String
 }
 
-const Advertise = () => {
+const Picture = () => {
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -71,40 +71,36 @@ const Advertise = () => {
       ),
     },
     {
-      title: '广告标题',
-      dataIndex: 'title',
-      key: 'title',
+      title: '标签名',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: '标签单词',
+      dataIndex: 'en_name',
+      key: 'en_name',
+    },
+    {
+      title: '标签图标地址',
+      dataIndex: 'icon',
+      key: 'icon',
+    },
+    {
+      title: '标签演示',
+      dataIndex: 'icon',
+      key: 'article_tag_demo',
       render: (value: any, record: any) => {
         return (
-          <div className="table-enable">
-            {JSON.parse(record.option_value).title}
+          <div className="avatar img-preview">
+            <img className="tag-img-icon" src={record.icon} alt="" />
           </div>
         )
       },
     },
     {
-      title: '广告链接',
-      dataIndex: 'link',
-      key: 'link',
-      render: (value: any, record: any) => {
-        return (
-          <div className="table-enable">
-            {JSON.parse(record.option_value).link}
-          </div>
-        )
-      },
-    },
-    {
-      title: '背景图片',
-      dataIndex: 'img_url',
-      key: 'img_url',
-      render: (value: any, record: any) => {
-        return (
-          <div className="table-enable">
-            {JSON.parse(record.option_value).img_url}
-          </div>
-        )
-      },
+      title: '备注',
+      dataIndex: 'description',
+      key: 'description',
     },
     {
       title: '是否可以用',
@@ -112,12 +108,20 @@ const Advertise = () => {
       key: 'enable',
       render: (value: any, record: any) => {
         return (
-          <div className="table-enable">
-            {JSON.parse(record.option_value).enable ? (
-              <CheckCircleOutlined />
-            ) : (
-              <CloseCircleOutlined />
-            )}
+          <div className="table-is-login">
+            {value ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+          </div>
+        )
+      },
+    },
+    {
+      title: '文章是否加入首页或者推荐',
+      dataIndex: 'is_push',
+      key: 'is_push',
+      render: (value: any, record: any) => {
+        return (
+          <div className="table-is-login">
+            {value ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
           </div>
         )
       },
@@ -152,9 +156,9 @@ const Advertise = () => {
 
   const editData = (val: any) => {
     showModal('edit')
-    setOperationId(val.option_id)
+    setOperationId(val.tag_id)
     form.setFieldsValue({
-      ...JSON.parse(val.option_value),
+      ...val,
     })
   }
 
@@ -166,7 +170,7 @@ const Advertise = () => {
 
       cancelText: 'No',
       onOk: () => {
-        fetchDelete(val.option_id)
+        fetchDelete(val.tag_id)
         /*删除文章*/
       },
       onCancel() {
@@ -177,15 +181,17 @@ const Advertise = () => {
 
   const search = useCallback(() => {
     http
-      .get('/options/list', {
+      .get('/article-tag/list', {
         params: {
-          option_key: 'advertise',
+          page: pagination.current,
+          pageSize: pagination.pageSize,
         },
       })
       .then((result: any) => {
-        setTableList(result.data)
+        setTableList(result.data.list)
+        setTotal(result.data.count)
       })
-  }, [])
+  }, [pagination])
 
   useEffect(() => {
     search()
@@ -218,45 +224,48 @@ const Advertise = () => {
   }
 
   const fetchCreate = (values: editArticleInfo) => {
-    /*创建Banner*/
-    http
-      .post('/options/create', {
-        option_key: 'advertise',
-        option_value: JSON.stringify(values),
-      })
-      .then((result: any) => {
-        search()
-        setIsVisibleEdit(false)
-        message.success('创建Banner成功')
-      })
+    /*创建文章标签*/
+    http.post('/article-tag/create', { ...values }).then((result: any) => {
+      search()
+      setIsVisibleEdit(false)
+      message.success('创建文章标签成功')
+    })
   }
 
   const fetchEdit = (values: editArticleInfo) => {
-    /*修改Banner*/
+    /*修改文章标签*/
     http
-      .post('/options/update', {
-        option_id: operationId,
-        option_key: 'advertise',
-        option_value: JSON.stringify(values),
-      })
+      .post('/article-tag/update', { tag_id: operationId, ...values })
       .then((result: any) => {
         search()
         setIsVisibleEdit(false)
-        message.success('修改Banner成功')
+        message.success('修改文章标签成功')
       })
   }
 
   const fetchDelete = (values: String) => {
-    /*删除Banner*/
-    http.post('/options/delete', { option_id: values }).then((result: any) => {
+    /*删除文章标签*/
+    http.post('/article-tag/delete', { tag_id: values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('删除Banner成功')
+      message.success('删除文章标签成功')
     })
   }
 
   return (
     <div className="layout-main">
+      <div className="layout-main-title">
+        <Breadcrumb>
+          <Breadcrumb.Item href="#/manager/index">
+            <span>主页</span>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item href="#">
+            <span>文章管理</span>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>文章标签</Breadcrumb.Item>
+        </Breadcrumb>
+      </div>
+
       <div className="layout-nav-btn">
         <button
           className="btn btn-danger"
@@ -264,7 +273,7 @@ const Advertise = () => {
             showModal('add')
           }}
         >
-          创建Banner
+          创建标签
         </button>
       </div>
 
@@ -275,7 +284,7 @@ const Advertise = () => {
           onCancel={() => {
             setIsVisibleEdit(false)
           }}
-          title={isCreate ? '创建Banner' : '修改Banner'}
+          title={isCreate ? '创建标签' : '修改标签'}
           visible={isVisibleEdit}
         >
           <Form
@@ -287,12 +296,12 @@ const Advertise = () => {
             onFinishFailed={onFinishFailed}
           >
             <Form.Item
-              label="广告标题"
-              name="title"
+              label="标签名"
+              name="name"
               rules={[
                 {
                   required: true,
-                  message: '请输入广告标题！',
+                  message: '请输入标签名！',
                   whitespace: true,
                 },
               ]}
@@ -301,12 +310,12 @@ const Advertise = () => {
             </Form.Item>
 
             <Form.Item
-              label="广告链接"
-              name="link"
+              label="标签名单词"
+              name="en_name"
               rules={[
                 {
                   required: true,
-                  message: '请输入广告链接！',
+                  message: '请输入标签单词！',
                   whitespace: true,
                 },
               ]}
@@ -315,17 +324,31 @@ const Advertise = () => {
             </Form.Item>
 
             <Form.Item
-              label="背景图片"
-              name="img_url"
+              label="标签图标地址"
+              name="icon"
               rules={[
                 {
                   required: true,
-                  message: '请输入背景图片链接',
+                  message: '请输入标签图标！',
                   whitespace: true,
                 },
               ]}
             >
               <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="标签描述"
+              name="description"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入标签描述',
+                  whitespace: true,
+                },
+              ]}
+            >
+              <Input.TextArea />
             </Form.Item>
 
             <Form.Item
@@ -336,6 +359,20 @@ const Advertise = () => {
                 {
                   required: true,
                   message: '请选择是否有效',
+                },
+              ]}
+            >
+              <Switch />
+            </Form.Item>
+
+            <Form.Item
+              label="文章是否加入首页或者推荐"
+              name="is_push"
+              valuePropName="checked"
+              rules={[
+                {
+                  required: true,
+                  message: '请选择文章是否加入首页或者推荐',
                 },
               ]}
             >
@@ -370,7 +407,7 @@ const Advertise = () => {
             pagination={{ ...pagination, total }}
             onChange={handleTableChange}
             dataSource={tableList}
-            rowKey={(record) => record.option_id}
+            rowKey={(record) => record.id}
           />
         </div>
       </div>
@@ -378,4 +415,4 @@ const Advertise = () => {
   )
 }
 
-export default Advertise
+export default Picture
