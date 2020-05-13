@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import {
   Table,
+  Tag,
   Breadcrumb,
   Form,
+  Select,
   Input,
   Modal,
   Button,
   message,
   Switch,
-  Upload,
 } from 'antd'
 import {
   DeleteOutlined,
@@ -18,6 +19,7 @@ import {
 } from '@ant-design/icons'
 import http from '@libs/http'
 
+const Option = Select.Option
 const confirm = Modal.confirm
 
 interface editArticleInfo {
@@ -27,7 +29,7 @@ interface editArticleInfo {
   type: String
 }
 
-const Picture = () => {
+const AdminUser = () => {
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -44,8 +46,29 @@ const Picture = () => {
   const [isVisibleEdit, setIsVisibleEdit] = useState(false)
   const [operationId, setOperationId] = useState('')
   const [isCreate, setIsCreate] = useState(true)
-  const [imageUrl, setImageUrl] = useState('')
+  const [isEditUserRole, setIsEditUserRole] = useState(false)
+  const [roleId, setRoleId] = useState('')
+  const [nickname, setNickname] = useState('')
   const [form] = Form.useForm()
+
+  const [adminRoleAll, setAdminRoleAll] = useState([])
+  useEffect(() => {
+    http.get('/admin-role/all').then((res) => {
+      setAdminRoleAll(res.data || [])
+    })
+  }, [])
+
+  const currentUserRole = (value: any): any => {
+    /*获取当前管理员用户的角色*/
+    let currInfo = value
+    let currRole = ''
+    adminRoleAll.map((item: any) => {
+      if (item.role_id === currInfo.admin_role_ids) {
+        currRole = item
+      }
+    })
+    return currRole
+  }
 
   const columns = [
     {
@@ -64,34 +87,44 @@ const Picture = () => {
       ),
     },
     {
-      title: '图片标题',
-      dataIndex: 'picture_title',
-      key: 'picture_title',
+      title: '账户',
+      dataIndex: 'account',
+      key: 'account',
     },
     {
-      title: '图片说明',
-      dataIndex: 'description',
-      key: 'description',
+      title: '昵称',
+      dataIndex: 'nickname',
+      key: 'nickname',
     },
     {
-      title: '图片地址',
-      dataIndex: 'picture_url',
-      key: 'picture_url',
-    },
-    {
-      title: '图片演示',
-      dataIndex: 'picture_url',
-      key: 'picture_show',
-      render: (value: any, record: any) => {
+      title: '角色组',
+      dataIndex: 'rule_name',
+      key: 'rule_name',
+      render: (text: any, record: any) => {
         return (
-          <div className="avatar img-preview">
-            <img src={record.picture_url} alt="" />
+          <div className="operation-btn">
+            {/* <Tag color="orange">超级管理员</Tag>*/}
+            {currentUserRole(record) ? (
+              <Tag color="orange">{currentUserRole(record).role_name}</Tag>
+            ) : (
+              <Tag color="#666">无</Tag>
+            )}
           </div>
         )
       },
     },
     {
-      title: '是否可用',
+      title: '邮箱',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: '手机',
+      dataIndex: 'phone',
+      key: 'phone',
+    },
+    {
+      title: '是否可以登陆',
       dataIndex: 'enable',
       key: 'enable',
       render: (value: any, record: any) => {
@@ -107,7 +140,7 @@ const Picture = () => {
       key: 'action',
       render: (text: any, record: any) => {
         return (
-          <div className="operation-btn">
+          <div className="operation-btn" style={{ width: '250px' }}>
             <button
               onClick={() => {
                 editData(record)
@@ -124,6 +157,16 @@ const Picture = () => {
             >
               <DeleteOutlined />
             </button>
+            <button
+              className="btn btn-primary"
+              onClick={async () => {
+                setOperationId(record.uid)
+                setNickname(record.nickname)
+                setIsEditUserRole(true)
+              }}
+            >
+              设置角色
+            </button>
           </div>
         )
       },
@@ -132,7 +175,7 @@ const Picture = () => {
 
   const editData = (val: any) => {
     showModal('edit')
-    setOperationId(val.picture_id)
+    setOperationId(val.uid)
     form.setFieldsValue({
       ...val,
     })
@@ -140,14 +183,14 @@ const Picture = () => {
 
   const deleteData = (val: any) => {
     confirm({
-      title: '确认要删除此图片吗？',
+      title: '确认要删除此管理员吗？',
       content: '此操作不可逆转',
       okText: 'Yes',
 
       cancelText: 'No',
       onOk: () => {
-        fetchDelete(val.picture_id)
-        /*删除图片*/
+        fetchDelete(val.uid)
+        /*删除管理员*/
       },
       onCancel() {
         console.log('Cancel')
@@ -157,7 +200,7 @@ const Picture = () => {
 
   const search = useCallback(() => {
     http
-      .get('/picture/list', {
+      .get('/admin-user/list', {
         params: {
           page: pagination.current,
           pageSize: pagination.pageSize,
@@ -181,6 +224,7 @@ const Picture = () => {
     setIsVisibleEdit(true)
     if (val === 'add') {
       setIsCreate(true)
+      form.resetFields()
     } else {
       setIsCreate(false)
     }
@@ -189,7 +233,6 @@ const Picture = () => {
   const onFinish = (values: any) => {
     if (isCreate) {
       fetchCreate(values)
-      form.resetFields()
     } else {
       fetchEdit(values)
     }
@@ -200,71 +243,45 @@ const Picture = () => {
   }
 
   const fetchCreate = (values: editArticleInfo) => {
-    /*创建图片*/
-    http.post('/picture/create', { ...values }).then((result: any) => {
+    /*创建管理员*/
+    http.post('/admin-user/create', { ...values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('创建图片成功')
+      message.success('创建管理员成功')
     })
   }
 
   const fetchEdit = (values: editArticleInfo) => {
-    /*修改图片*/
+    /*修改管理员*/
     http
-      .post('/picture/update', { picture_id: operationId, ...values })
+      .post('/admin-user/edit', { uid: operationId, ...values })
       .then((result: any) => {
         search()
         setIsVisibleEdit(false)
-        message.success('修改图片成功')
+        message.success('修改管理员成功')
       })
   }
 
   const fetchDelete = (values: String) => {
-    /*删除图片*/
-    http.post('/picture/delete', { picture_id: values }).then((result: any) => {
+    /*删除管理员*/
+    http.post('/admin-user/delete', { uid: values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('删除图片成功')
+      message.success('删除管理员成功')
     })
   }
-
-  function beforeUpload(file: any) {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
-    if (!isJpgOrPng) {
-      message.error('You can only upload JPG/PNG file!')
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2
-    if (!isLt2M) {
-      message.error('Image must smaller than 2MB!')
-    }
-    return isJpgOrPng && isLt2M
-  }
-
-  function getBase64(img: any, callback: any) {
-    const reader = new FileReader()
-    reader.addEventListener('load', () => callback(reader.result))
-    reader.readAsDataURL(img)
-  }
-
-  const handleChange = (info: any) => {
-    console.log('info', info)
-    if (info.file.status === 'uploading') {
-      return
-    }
-    if (info.file.status === 'done') {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj, (imageUrl: any) =>
-        setImageUrl(info.file.response.data.filename)
-      )
-    }
-  }
-
-  const normFile = (e: any) => {
-    console.log('Upload event:', e)
-    if (Array.isArray(e)) {
-      return e
-    }
-    return e && e.fileList
+  const setUserRole = () => {
+    http
+      .post('/admin-user-role/create', {
+        /*创建管理员用户角色*/
+        role_id: roleId,
+        uid: operationId,
+      })
+      .then((res) => {
+        search()
+        setIsEditUserRole(false)
+        message.success('创建管理员')
+      })
   }
 
   return (
@@ -275,9 +292,9 @@ const Picture = () => {
             <span>主页</span>
           </Breadcrumb.Item>
           <Breadcrumb.Item href="#">
-            <span>网站管理</span>
+            <span>系统管理</span>
           </Breadcrumb.Item>
-          <Breadcrumb.Item>图片</Breadcrumb.Item>
+          <Breadcrumb.Item>管理员</Breadcrumb.Item>
         </Breadcrumb>
       </div>
 
@@ -288,7 +305,7 @@ const Picture = () => {
             showModal('add')
           }}
         >
-          创建图片
+          创建管理员
         </button>
       </div>
 
@@ -299,7 +316,7 @@ const Picture = () => {
           onCancel={() => {
             setIsVisibleEdit(false)
           }}
-          title={isCreate ? '创建标签' : '修改标签'}
+          title={isCreate ? '创建管理员' : '修改管理员'}
           visible={isVisibleEdit}
         >
           <Form
@@ -311,12 +328,12 @@ const Picture = () => {
             onFinishFailed={onFinishFailed}
           >
             <Form.Item
-              label="图片标题"
-              name="picture_title"
+              label="账户"
+              name="account"
               rules={[
                 {
                   required: true,
-                  message: '请输入图片标题！',
+                  message: '请输入账户！',
                   whitespace: true,
                 },
               ]}
@@ -325,12 +342,71 @@ const Picture = () => {
             </Form.Item>
 
             <Form.Item
-              label="图片说明"
-              name="description"
+              label="昵称"
+              name="nickname"
               rules={[
                 {
                   required: true,
-                  message: '图片说明！',
+                  message: '请输入昵称！',
+                  whitespace: true,
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="密码"
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入密码！',
+                  whitespace: true,
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="重复密码"
+              name="confirm"
+              rules={[
+                {
+                  required: true,
+                  message: '重复输入密码！',
+                  whitespace: true,
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="电子邮件"
+              name="email"
+              rules={[
+                {
+                  type: 'email',
+                  message: '输入的电子邮件无效！',
+                },
+                {
+                  required: true,
+                  message: '请输入您的电子邮件！',
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="手机号码"
+              name="phone"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入你的手机号码！',
                   whitespace: true,
                 },
               ]}
@@ -352,35 +428,10 @@ const Picture = () => {
               <Switch />
             </Form.Item>
 
-            <Form.Item
-              name="picture_url"
-              label="Upload"
-              getValueFromEvent={normFile}
-              valuePropName="fileList"
-              extra="long"
-            >
-              <Upload
-                name="file"
-                listType="picture-card"
-                className="avatar-uploader"
-                showUploadList={false}
-                action="/api-admin/v1/upload/picture"
-                headers={{ 'x-access-token': localStorage.box_tokens }}
-                beforeUpload={beforeUpload}
-                onChange={handleChange}
-              >
-                {imageUrl ? (
-                  <img src={imageUrl} alt="img" style={{ width: '100%' }} />
-                ) : (
-                  <div className="ant-upload-text">Upload</div>
-                )}
-              </Upload>
-            </Form.Item>
-
             <Form.Item {...tailLayout}>
               {isCreate ? (
                 <Button type="primary" htmlType="submit">
-                  创建
+                  创建账户
                 </Button>
               ) : (
                 <Button type="primary" htmlType="submit">
@@ -399,13 +450,50 @@ const Picture = () => {
           </Form>
         </Modal>
 
+        <Modal
+          footer={null}
+          onCancel={() => {
+            setIsEditUserRole(false)
+          }}
+          title="修改用户权限"
+          visible={isEditUserRole}
+        >
+          <Form.Item label="管理员账户">
+            <Input disabled={true} type="text" value={nickname} />
+          </Form.Item>
+          <Form.Item label="角色类型">
+            <Select
+              placeholder="请设置权限"
+              style={{ width: 150 }}
+              onChange={(value: any) => {
+                setRoleId(value)
+              }}
+            >
+              {adminRoleAll.map((item: any) => (
+                <Option key={item.role_id} value={item.role_id}>
+                  {item.role_name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item>
+            <Button
+              className="register-btn"
+              type="primary"
+              onClick={setUserRole}
+            >
+              修改用户角色
+            </Button>
+          </Form.Item>
+        </Modal>
+
         <div className="card-body">
           <Table
             columns={columns}
             pagination={{ ...pagination, total }}
             onChange={handleTableChange}
             dataSource={tableList}
-            rowKey={(record) => record.picture_id}
+            rowKey={(record) => record.uid}
           />
         </div>
       </div>
@@ -413,4 +501,4 @@ const Picture = () => {
   )
 }
 
-export default Picture
+export default AdminUser

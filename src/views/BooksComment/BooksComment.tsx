@@ -13,12 +13,7 @@ import {
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import http from '@libs/http'
 
-import {
-  statusList,
-  statusListText,
-  articleTypeText,
-  otherStatusListText,
-} from '@utils/constant'
+import { otherStatusListText } from '@utils/constant'
 
 import faceqq from '@utils/qq'
 const Option = Select.Option

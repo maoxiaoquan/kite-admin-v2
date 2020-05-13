@@ -13,12 +13,7 @@ import {
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import http from '@libs/http'
 
-import {
-  statusList,
-  statusListText,
-  articleTypeText,
-  otherStatusListText,
-} from '@utils/constant'
+import { otherStatusListText } from '@utils/constant'
 
 import faceqq from '@utils/qq'
 const Option = Select.Option
@@ -104,6 +99,7 @@ const BookComment = () => {
           <a
             className="book-title"
             target="_blank"
+            rel="noopener noreferrer"
             href={`/book/${record.books_id}/section/${record.book_id}`}
           >
             {record.book.title}

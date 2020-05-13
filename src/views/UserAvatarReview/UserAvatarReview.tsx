@@ -10,12 +10,11 @@ import {
   Button,
   message,
 } from 'antd'
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
+
 import http from '@libs/http'
 
-import { statusList, statusListText, articleTypeText } from '@utils/constant'
+import { statusList, articleTypeText } from '@utils/constant'
 const Option = Select.Option
-const confirm = Modal.confirm
 
 interface editArticleInfo {
   source: number | String
@@ -33,7 +32,6 @@ const UserAvatarReview = () => {
     wrapperCol: { offset: 8, span: 16 },
   }
   const [statusVal, setStatusVal] = useState('')
-  const [sourceList] = useState(['', '原创', '转载'])
   const [statusTextList] = useState(['', '审核中', '审核通过', '审核失败'])
   const [tableList, setTableList] = useState([])
   const [pagination, setPagination] = useState({

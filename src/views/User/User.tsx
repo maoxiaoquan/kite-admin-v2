@@ -10,7 +10,6 @@ import {
   Button,
   message,
   Switch,
-  InputNumber,
   DatePicker,
 } from 'antd'
 import {
@@ -20,12 +19,7 @@ import {
   CloseCircleOutlined,
 } from '@ant-design/icons'
 import http from '@libs/http'
-import {
-  statusList,
-  statusListText,
-  articleTypeText,
-  otherStatusListText,
-} from '@utils/constant'
+
 const Option = Select.Option
 const confirm = Modal.confirm
 

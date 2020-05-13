@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import {
   Table,
-  Tag,
   Breadcrumb,
   Form,
-  Select,
   Input,
   Modal,
   Button,
@@ -19,13 +17,6 @@ import {
 } from '@ant-design/icons'
 import http from '@libs/http'
 
-import {
-  statusList,
-  statusListText,
-  articleTypeText,
-  otherStatusListText,
-} from '@utils/constant'
-const Option = Select.Option
 const confirm = Modal.confirm
 
 interface editArticleInfo {
@@ -205,6 +196,7 @@ const ArticleTag = () => {
     setIsVisibleEdit(true)
     if (val === 'add') {
       setIsCreate(true)
+      form.resetFields()
     } else {
       setIsCreate(false)
     }
@@ -213,7 +205,6 @@ const ArticleTag = () => {
   const onFinish = (values: any) => {
     if (isCreate) {
       fetchCreate(values)
-      form.resetFields()
     } else {
       fetchEdit(values)
     }

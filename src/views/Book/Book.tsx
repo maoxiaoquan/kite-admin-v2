@@ -16,7 +16,6 @@ import http from '@libs/http'
 import {
   statusList,
   statusListText,
-  articleTypeText,
   otherStatusListText,
 } from '@utils/constant'
 const Option = Select.Option
@@ -40,7 +39,7 @@ const Book = () => {
   const [titleVal, setTitleVal] = useState('')
   const [statusVal, setStatusVal] = useState('')
   const [tableList, setTableList] = useState([])
-  const [articleTagAll, setArticleTagAll] = useState([])
+
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -52,12 +51,6 @@ const Book = () => {
   })
   const [operationId, setOperationId] = useState('')
   const [form] = Form.useForm()
-
-  useEffect(() => {
-    http.get('/article-tag/all').then((res) => {
-      setArticleTagAll(res.data.list)
-    })
-  }, [])
 
   const columns = [
     {

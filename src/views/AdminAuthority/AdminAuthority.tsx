@@ -17,7 +17,7 @@ import {
   PlusSquareOutlined,
 } from '@ant-design/icons'
 import http from '@libs/http'
-import './UserAuthority.scss'
+import './AdminAuthority.scss'
 
 const Option = Select.Option
 const confirm = Modal.confirm
@@ -29,7 +29,7 @@ interface editArticleInfo {
   type: String
 }
 
-const UserAuthority = () => {
+const AdminAuthority = () => {
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -43,7 +43,6 @@ const UserAuthority = () => {
   const [isCreate, setIsCreate] = useState(true)
   const [form] = Form.useForm()
   const [userAuthorityList, setUserAuthorityList] = useState<string[]>([])
-
   const [authorityParent, setAuthorityParent] = useState({
     authority_parent_id: '',
     authority_parent_name: '',
@@ -62,7 +61,7 @@ const UserAuthority = () => {
   }, [])
 
   const fetchUserRoleList = useCallback(() => {
-    http.get('/user-authority/list').then((result: any) => {
+    http.get('/admin-authority/list').then((result: any) => {
       const arr: any[] = filterArray(result.data, '')
       setUserAuthorityList(arr)
     })
@@ -129,36 +128,36 @@ const UserAuthority = () => {
   }
 
   const fetchCreate = (values: editArticleInfo) => {
-    /*创建用户权限*/
+    /*创建管理员权限*/
     http
-      .post('/user-authority/create', { ...values, ...authorityParent })
+      .post('/admin-authority/create', { ...values, ...authorityParent })
       .then((result: any) => {
         fetchUserRoleList()
         setIsVisibleEdit(false)
-        message.success('创建用户权限成功')
+        message.success('创建管理员权限成功')
       })
   }
 
   const fetchEdit = (values: editArticleInfo) => {
-    /*修改用户权限*/
+    /*修改管理员权限*/
     http
-      .post('/user-authority/update', { authority_id: operationId, ...values })
+      .post('/admin-authority/update', { authority_id: operationId, ...values })
       .then((result: any) => {
         fetchUserRoleList()
         setIsVisibleEdit(false)
-        message.success('修改用户权限成功')
+        message.success('修改管理员权限成功')
       })
   }
 
   const fetchDelete = (values: String) => {
-    /*删除用户权限*/
+    /*删除管理员权限*/
     let id_arr = traversalDelete(values)
     http
-      .post('/user-authority/delete', { authority_id_arr: id_arr })
+      .post('/admin-authority/delete', { authority_id_arr: id_arr })
       .then((result: any) => {
         fetchUserRoleList()
         setIsVisibleEdit(false)
-        message.success('删除用户权限成功')
+        message.success('删除管理员权限成功')
       })
   }
 
@@ -242,9 +241,9 @@ const UserAuthority = () => {
             <span>主页</span>
           </Breadcrumb.Item>
           <Breadcrumb.Item href="#">
-            <span>文章管理</span>
+            <span>系统管理</span>
           </Breadcrumb.Item>
-          <Breadcrumb.Item>用户权限</Breadcrumb.Item>
+          <Breadcrumb.Item>管理员权限</Breadcrumb.Item>
         </Breadcrumb>
       </div>
 
@@ -255,7 +254,7 @@ const UserAuthority = () => {
             showModal('add', {})
           }}
         >
-          创建用户权限
+          创建管理员权限
         </button>
       </div>
 
@@ -266,7 +265,7 @@ const UserAuthority = () => {
           onCancel={() => {
             setIsVisibleEdit(false)
           }}
-          title={isCreate ? '创建用户权限' : '修改用户权限'}
+          title={isCreate ? '创建管理员权限' : '修改管理员权限'}
           visible={isVisibleEdit}
         >
           <Form
@@ -428,4 +427,4 @@ const UserAuthority = () => {
   )
 }
 
-export default UserAuthority
+export default AdminAuthority

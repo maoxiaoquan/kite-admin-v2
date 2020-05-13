@@ -87,6 +87,32 @@ const Picture = lazy(() =>
   import(/* webpackChunkName: "Picture" */ '@views/Picture/Picture')
 )
 
+const AdminUser = lazy(() =>
+  import(/* webpackChunkName: "AdminUser" */ '@views/AdminUser/AdminUser')
+)
+
+const AdminRole = lazy(() =>
+  import(/* webpackChunkName: "AdminRole" */ '@views/AdminRole/AdminRole')
+)
+
+const AdminAuthority = lazy(() =>
+  import(
+    /* webpackChunkName: "AdminAuthority" */ '@views/AdminAuthority/AdminAuthority'
+  )
+)
+
+const AdminSystemLog = lazy(() =>
+  import(
+    /* webpackChunkName: "AdminSystemLog" */ '@views/AdminSystemLog/AdminSystemLog'
+  )
+)
+
+const SystemConfig = lazy(() =>
+  import(
+    /* webpackChunkName: "SystemConfig" */ '@views/SystemConfig/SystemConfig'
+  )
+)
+
 export default [
   { path: '/', element: <Index /> },
   // These are the same as the props you provide to <Route>
@@ -251,9 +277,49 @@ export default [
           </Suspense>
         ),
       },
+      {
+        path: 'admin-user',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <AdminUser />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'admin-role',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <AdminRole />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'admin-authority',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <AdminAuthority />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'admin-system-log',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <AdminSystemLog />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'system-config',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <SystemConfig />
+          </Suspense>
+        ),
+      },
     ],
   },
   //  { path: '/', redirectTo: '/demo' },
   // Not found routes work as you'd expect
-  // { path: '*', element: <Home /> }
+  { path: '*', element: <Index /> },
 ]

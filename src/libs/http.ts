@@ -1,17 +1,17 @@
 import axios from 'axios'
 import qs from 'qs'
-import { message } from 'antd';
+import { message } from 'antd'
 
 const http = axios.create({
   baseURL: '/api-admin/v1',
   headers: {
-    'x-requested-with': 'XMLHttpRequest'
-  }
+    'x-requested-with': 'XMLHttpRequest',
+  },
 })
 
 /* 稳定背后的代价，是我们在消耗自己未来的可能性。 */
 
-http.interceptors.request.use(config => {
+http.interceptors.request.use((config) => {
   if (localStorage.kiteToken) {
     config.headers['x-access-token'] = localStorage.kiteToken || ''
   }
@@ -23,12 +23,12 @@ http.interceptors.request.use(config => {
 })
 
 http.interceptors.response.use(
-  response => {
+  (response) => {
     const data = response.data
-    const win: any = window;
+    const win: any = window
     if (data.state === 'nologin') {
-      message.warning(data.message);
-      win.location.replace('/sign-in')
+      message.warning(data.message)
+      win.location.replace('#/sign-in')
       return false
     }
 

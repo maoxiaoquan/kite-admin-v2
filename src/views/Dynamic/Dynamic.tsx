@@ -15,8 +15,6 @@ import http from '@libs/http'
 
 import {
   statusList,
-  statusListText,
-  articleTypeText,
   otherStatusList,
   otherStatusListText,
   dynamicTypeText,
@@ -486,7 +484,7 @@ const Dynamic = () => {
             pagination={{ ...pagination, total }}
             onChange={handleTableChange}
             dataSource={tableList}
-            rowKey={(record) => record.aid}
+            rowKey={(record) => record.id}
           />
         </div>
       </div>

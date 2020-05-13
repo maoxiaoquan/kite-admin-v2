@@ -1,26 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import {
   Table,
-  Tag,
   Breadcrumb,
   Form,
-  Select,
   Input,
   Modal,
   Button,
   message,
-  Switch,
   Tree,
 } from 'antd'
-import {
-  DeleteOutlined,
-  EditOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-} from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 import http from '@libs/http'
 
-const Option = Select.Option
 const confirm = Modal.confirm
 
 interface editArticleInfo {
@@ -30,7 +21,7 @@ interface editArticleInfo {
   type: String
 }
 
-const UserRole = () => {
+const AdminRole = () => {
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -47,7 +38,6 @@ const UserRole = () => {
   const [isVisibleEdit, setIsVisibleEdit] = useState(false)
   const [operationId, setOperationId] = useState('')
   const [isCreate, setIsCreate] = useState(true)
-  const [useRoleTypeList] = useState(['', '默认角色', '定制化角色'])
   const [visiblSeAuthorityModal, setVisiblSeAuthorityModal] = useState(false)
   const [roleAuthorityList, setRoleAuthorityList] = useState<string[]>([])
   const [userAuthoritySourceList, setUserAuthoritySourceList] = useState([])
@@ -67,7 +57,7 @@ const UserRole = () => {
   }, [])
 
   const fetchUserRoleList = useCallback(() => {
-    http.get('/user-authority/list').then((result: any) => {
+    http.get('/admin-authority/list').then((result: any) => {
       setUserAuthoritySourceList(result.data)
       const arr: any[] = filterArray(result.data, '')
       setUserAuthorityList(arr)
@@ -95,70 +85,14 @@ const UserRole = () => {
       ),
     },
     {
-      title: '角色名',
-      dataIndex: 'user_role_name',
-      key: 'user_role_name',
-      render: (text: any, record: any) => (
-        <Tag className="table-article-tag-list" color="orange">
-          {record.user_role_name}
-        </Tag>
-      ),
+      title: '角色名字',
+      dataIndex: 'role_name',
+      key: 'role_name',
     },
     {
-      title: '角色图标',
-      dataIndex: 'user_role_icon',
-      key: 'user_role_icon',
-    },
-    {
-      title: '角色类型',
-      dataIndex: 'status',
-      key: 'status',
-      render: (text: any, record: any) => (
-        <Tag className="table-article-tag-list" color="orange">
-          {useRoleTypeList[record.user_role_type]}
-        </Tag>
-      ),
-    },
-    {
-      title: '角色介绍',
-      dataIndex: 'user_role_description',
-      key: 'user_role_description',
-    },
-    {
-      title: '角色图标演示',
-      dataIndex: 'user_role_icon',
-      key: 'user_role_icon_demo',
-      render: (value: any, record: any) => {
-        return (
-          <div className="avatar img-preview">
-            <img className="tag-img-icon" src={record.user_role_icon} alt="" />
-          </div>
-        )
-      },
-    },
-    {
-      title: '是否在个人中心显示',
-      dataIndex: 'is_show',
-      key: 'is_show',
-      render: (value: any, record: any) => {
-        return (
-          <div className="table-enable">
-            {value ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-          </div>
-        )
-      },
-    },
-    {
-      title: '是否可以用',
-      dataIndex: 'enable',
-      key: 'enable',
-      render: (value: any, record: any) => {
-        return (
-          <div className="table-enable">
-            {value ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-          </div>
-        )
-      },
+      title: '角色描述',
+      dataIndex: 'role_description',
+      key: 'role_description',
     },
     {
       title: '操作',
@@ -190,11 +124,11 @@ const UserRole = () => {
                 onClick={async () => {
                   setVisiblSeAuthorityModal(true)
                   initTreeData(
-                    record.user_authority_ids
-                      ? record.user_authority_ids.split(',')
+                    record.admin_authority_ids
+                      ? record.admin_authority_ids.split(',')
                       : ''
                   )
-                  setOperationId(record.user_role_id)
+                  setOperationId(record.role_id)
                 }}
               >
                 设置权限
@@ -210,7 +144,7 @@ const UserRole = () => {
 
   const editData = (val: any) => {
     showModal('edit')
-    setOperationId(val.user_role_id)
+    setOperationId(val.role_id)
     form.setFieldsValue({
       ...val,
     })
@@ -218,14 +152,14 @@ const UserRole = () => {
 
   const deleteData = (val: any) => {
     confirm({
-      title: '确认要删除此用户角色吗？',
+      title: '确认要删除此管理员角色吗？',
       content: '此操作不可逆转',
       okText: 'Yes',
 
       cancelText: 'No',
       onOk: () => {
-        fetchDelete(val.user_role_id)
-        /*删除用户角色*/
+        fetchDelete(val.role_id)
+        /*删除管理员角色*/
       },
       onCancel() {},
     })
@@ -233,7 +167,7 @@ const UserRole = () => {
 
   const search = useCallback(() => {
     http
-      .get('/user-role/list', {
+      .get('/admin-role/list', {
         params: {
           page: pagination.current,
           pageSize: pagination.pageSize,
@@ -289,34 +223,32 @@ const UserRole = () => {
   const onFinishFailed = (errorInfo: any) => {}
 
   const fetchCreate = (values: editArticleInfo) => {
-    /*创建用户角色*/
-    http.post('/user-role/create', { ...values }).then((result: any) => {
+    /*创建管理员角色*/
+    http.post('/admin-role/create', { ...values }).then((result: any) => {
       search()
       setIsVisibleEdit(false)
-      message.success('创建用户角色成功')
+      message.success('创建管理员角色成功')
     })
   }
 
   const fetchEdit = (values: editArticleInfo) => {
-    /*修改用户角色*/
+    /*修改管理员角色*/
     http
-      .post('/user-role/update', { user_role_id: operationId, ...values })
+      .post('/admin-role/edit', { role_id: operationId, ...values })
       .then((result: any) => {
         search()
         setIsVisibleEdit(false)
-        message.success('修改用户角色成功')
+        message.success('修改管理员角色成功')
       })
   }
 
   const fetchDelete = (values: String) => {
-    /*删除用户角色*/
-    http
-      .post('/user-role/delete', { user_role_id: values })
-      .then((result: any) => {
-        search()
-        setIsVisibleEdit(false)
-        message.success('删除用户角色成功')
-      })
+    /*删除管理员角色*/
+    http.post('/admin-role/delete', { role_id: values }).then((result: any) => {
+      search()
+      setIsVisibleEdit(false)
+      message.success('删除管理员角色成功')
+    })
   }
 
   const onCheck = (checkedKeys: any, event: any) => {
@@ -336,8 +268,8 @@ const UserRole = () => {
   const fetchSetUserRoleAuthority = () => {
     /* 传递tyepe=2子节点 */
     http
-      .post('/user-role-authority/set', {
-        user_role_id: operationId,
+      .post('/admin-role-authority/set', {
+        role_id: operationId,
         roleAuthorityListAll,
       })
       .then(() => {
@@ -356,9 +288,9 @@ const UserRole = () => {
             <span>主页</span>
           </Breadcrumb.Item>
           <Breadcrumb.Item href="#">
-            <span>用户管理</span>
+            <span>系统管理</span>
           </Breadcrumb.Item>
-          <Breadcrumb.Item>用户角色</Breadcrumb.Item>
+          <Breadcrumb.Item>系统管理角色</Breadcrumb.Item>
         </Breadcrumb>
       </div>
 
@@ -369,7 +301,7 @@ const UserRole = () => {
             showModal('add')
           }}
         >
-          创建用户角色
+          创建管理员角色
         </button>
       </div>
 
@@ -380,7 +312,7 @@ const UserRole = () => {
           onCancel={() => {
             setIsVisibleEdit(false)
           }}
-          title={isCreate ? '创建用户角色' : '修改用户角色'}
+          title={isCreate ? '创建管理员角色' : '修改管理员角色'}
           visible={isVisibleEdit}
         >
           <Form
@@ -393,7 +325,7 @@ const UserRole = () => {
           >
             <Form.Item
               label="角色名"
-              name="user_role_name"
+              name="role_name"
               rules={[
                 {
                   required: true,
@@ -406,40 +338,8 @@ const UserRole = () => {
             </Form.Item>
 
             <Form.Item
-              name="user_role_type"
-              label="角色类型"
-              rules={[{ required: true }]}
-            >
-              <Select placeholder="请选择角色类型" allowClear>
-                {useRoleTypeList.map((item: any, key: any) =>
-                  item ? (
-                    <Option value={key} key={key}>
-                      {item}
-                    </Option>
-                  ) : (
-                    ''
-                  )
-                )}
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              label="角色名图标"
-              name="user_role_icon"
-              rules={[
-                {
-                  required: true,
-                  message: '请输入角色名图标！',
-                  whitespace: true,
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-
-            <Form.Item
               label="角色描述"
-              name="user_role_description"
+              name="role_description"
               rules={[
                 {
                   required: true,
@@ -449,34 +349,6 @@ const UserRole = () => {
               ]}
             >
               <Input />
-            </Form.Item>
-
-            <Form.Item
-              label="是否有效"
-              name="enable"
-              valuePropName="checked"
-              rules={[
-                {
-                  required: true,
-                  message: '请选择是否有效',
-                },
-              ]}
-            >
-              <Switch />
-            </Form.Item>
-
-            <Form.Item
-              label="是否显示"
-              name="is_show"
-              valuePropName="checked"
-              rules={[
-                {
-                  required: true,
-                  message: '请选择是否显示',
-                },
-              ]}
-            >
-              <Switch />
             </Form.Item>
 
             <Form.Item {...tailLayout}>
@@ -542,7 +414,7 @@ const UserRole = () => {
             pagination={{ ...pagination, total }}
             onChange={handleTableChange}
             dataSource={tableList}
-            rowKey={(record) => record.user_role_id}
+            rowKey={(record) => record.role_id}
           />
         </div>
       </div>
@@ -550,4 +422,4 @@ const UserRole = () => {
   )
 }
 
-export default UserRole
+export default AdminRole
