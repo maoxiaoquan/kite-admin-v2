@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from 'react'
 import { Row, Col, List, Avatar, Breadcrumb } from 'antd'
-import { HomeOutlined, BarChartOutlined } from '@ant-design/icons';
+import {
+  HomeOutlined,
+  BarChartOutlined,
+  FileTextOutlined,
+  MessageOutlined,
+  TeamOutlined,
+  TagsOutlined,
+} from '@ant-design/icons'
 import './index.scss'
 import http from '@libs/http'
 
 const Home = () => {
-
   interface Statistics {
-    articleBlogCount: any;
-    articleCommentCount: any;
-    articleCount: any;
-    count: any;
-    dynamicCommentCount: any;
-    dynamicCount: any;
-    new_article: any;
-    new_comment: any;
-    new_user: any;
+    articleBlogCount: any
+    articleCommentCount: any
+    articleCount: any
+    count: any
+    dynamicCommentCount: any
+    dynamicCount: any
+    new_article: any
+    new_comment: any
+    new_user: any
   }
 
   const [statistics, setStatistics] = useState<Statistics>({
@@ -28,20 +34,14 @@ const Home = () => {
     new_article: [],
     new_comment: [],
     new_user: [],
-  });
+  })
 
-
-  const [sexs] = useState([
-    '未知',
-    '男',
-    '女'
-  ]);
+  const [sexs] = useState(['未知', '男', '女'])
 
   useEffect(() => {
-    http.get('/admin-index/statistics')
-      .then((result) => {
-        setStatistics(result.data)
-      })
+    http.get('/admin-index/statistics').then((result) => {
+      setStatistics(result.data)
+    })
   }, [])
 
   return (
@@ -56,7 +56,6 @@ const Home = () => {
           </Breadcrumb.Item>
           <Breadcrumb.Item>仪表盘</Breadcrumb.Item>
         </Breadcrumb>
-
       </div>
 
       <div className="layout-statistics">
@@ -66,15 +65,17 @@ const Home = () => {
               <div className="card separate-card">
                 <div className="card-body">
                   <div className="float-right">
-                    <BarChartOutlined className="big-widget-icon text-danger" />
+                    <FileTextOutlined className="big-widget-icon text-danger" />
                   </div>
                   <h5
                     className="text-muted font-weight-normal mt-0"
                     title="Number of Customers"
                   >
                     文章总数
-                    </h5>
-                  <h3 className="mt-3 mb-3">{statistics.articleCount.allCount}</h3>
+                  </h5>
+                  <h3 className="mt-3 mb-3">
+                    {statistics.articleCount.allCount}
+                  </h3>
                   <p className="mb-0 text-muted">
                     <span className="text-nowrap">统计所有的文章</span>
                   </p>
@@ -86,19 +87,21 @@ const Home = () => {
               <div className="card separate-card">
                 <div className="card-body">
                   <div className="float-right">
-                    <BarChartOutlined className="big-widget-icon text-primary" />
+                    <MessageOutlined className="big-widget-icon text-primary" />
                   </div>
                   <h5
                     className="text-muted font-weight-normal mt-0"
                     title="Number of Customers"
                   >
                     片刻总数
-                    </h5>
-                  <h3 className="mt-3 mb-3">{statistics.dynamicCount.allCount}</h3>
+                  </h5>
+                  <h3 className="mt-3 mb-3">
+                    {statistics.dynamicCount.allCount}
+                  </h3>
                   <p className="mb-0 text-muted">
                     <span className="text-nowrap">
                       统计所有的用户发表的说说
-                      </span>
+                    </span>
                   </p>
                 </div>
               </div>
@@ -108,19 +111,21 @@ const Home = () => {
               <div className="card  separate-card">
                 <div className="card-body">
                   <div className="float-right">
-                    <BarChartOutlined className="big-widget-icon text-info" />
+                    <TagsOutlined className="big-widget-icon text-info" />
                   </div>
                   <h5
                     className="text-muted font-weight-normal mt-0"
                     title="Number of Customers"
                   >
                     个人专栏总数
-                    </h5>
-                  <h3 className="mt-3 mb-3">{statistics.articleBlogCount.allCount}</h3>
+                  </h5>
+                  <h3 className="mt-3 mb-3">
+                    {statistics.articleBlogCount.allCount}
+                  </h3>
                   <p className="mb-0 text-muted">
                     <span className="text-nowrap">
                       统计所有的个人公开的专栏
-                      </span>
+                    </span>
                   </p>
                 </div>
               </div>
@@ -130,15 +135,15 @@ const Home = () => {
               <div className="card  separate-card">
                 <div className="card-body">
                   <div className="float-right">
-                    <BarChartOutlined className="big-widget-icon text-primary" />
+                    <TeamOutlined className="big-widget-icon text-primary" />
                   </div>
                   <h5
                     className="text-muted font-weight-normal mt-0"
                     title="Number of Customers"
                   >
                     用户总数
-                    </h5>
-                  <h3 className="mt-3 mb-3">{statistics.articleCount.allCount}</h3>
+                  </h5>
+                  <h3 className="mt-3 mb-3">{statistics.count.user_count}</h3>
                   <p className="mb-0 text-muted">
                     <span className="text-nowrap">统计所有的用户</span>
                   </p>
@@ -162,14 +167,14 @@ const Home = () => {
                       title="Number of Customers"
                     >
                       个人专栏无需审核
-                      </h5>
+                    </h5>
                     <h3 className="mt-3 mb-3">
                       {statistics.articleBlogCount.noReviewCount}
                     </h3>
                     <p className="mb-0 text-muted">
                       <span className="text-nowrap">
                         统计所有的个人公开的专栏
-                        </span>
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -186,8 +191,10 @@ const Home = () => {
                       title="Number of Customers"
                     >
                       个人专栏待审核
-                      </h5>
-                    <h3 className="mt-3 mb-3">{statistics.articleCount.reviewCount}</h3>
+                    </h5>
+                    <h3 className="mt-3 mb-3">
+                      {statistics.articleCount.reviewCount}
+                    </h3>
                     <p className="mb-0 text-muted">
                       <span className="text-nowrap">统计所有的用户</span>
                     </p>
@@ -206,7 +213,7 @@ const Home = () => {
                       title="Number of Customers"
                     >
                       文章评论总数
-                      </h5>
+                    </h5>
                     <h3 className="mt-3 mb-3">
                       {statistics.articleCommentCount.allCount}
                     </h3>
@@ -228,7 +235,7 @@ const Home = () => {
                       title="Number of Customers"
                     >
                       片刻评论总数
-                      </h5>
+                    </h5>
                     <h3 className="mt-3 mb-3">
                       {statistics.dynamicCommentCount.allCount}
                     </h3>
@@ -245,9 +252,7 @@ const Home = () => {
               <div className="card-body">
                 <h4 className="header-title">数据统计</h4>
                 <div className="table-responsive count-view-table">
-                  <table
-                    className="table table-centered table-hover mb-0"
-                  >
+                  <table className="table table-centered table-hover mb-0">
                     <tbody>
                       <tr>
                         <th>标题</th>
@@ -266,7 +271,9 @@ const Home = () => {
                         <td>文章评论</td>
                         <td>{statistics.articleCommentCount.noReviewCount}</td>
                         <td>{statistics.articleCommentCount.reviewCount}</td>
-                        <td>{statistics.articleCommentCount.reviewFailCount}</td>
+                        <td>
+                          {statistics.articleCommentCount.reviewFailCount}
+                        </td>
                       </tr>
                       <tr>
                         <td>动态</td>
@@ -278,7 +285,9 @@ const Home = () => {
                         <td>动态评论</td>
                         <td>{statistics.dynamicCommentCount.noReviewCount}</td>
                         <td>{statistics.dynamicCommentCount.reviewCount}</td>
-                        <td>{statistics.dynamicCommentCount.reviewFailCount}</td>
+                        <td>
+                          {statistics.dynamicCommentCount.reviewFailCount}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
@@ -375,7 +384,6 @@ const Home = () => {
       </div>
     </div>
   )
-
 }
 
 export default Home

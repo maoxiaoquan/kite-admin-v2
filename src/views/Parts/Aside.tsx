@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react'
-import { Menu, Layout, } from 'antd'
+import { Menu, Layout } from 'antd'
 import { Link } from 'react-router-dom'
 import ScrollBar from '@components/ScrollBar'
-import { PieChartOutlined, HeatMapOutlined, BarChartOutlined } from '@ant-design/icons';
+import {
+  PieChartOutlined,
+  HeatMapOutlined,
+  BarChartOutlined,
+  FileTextOutlined,
+  MessageOutlined,
+  ReadOutlined,
+  TeamOutlined,
+  ChromeOutlined,
+  ControlOutlined,
+} from '@ant-design/icons'
 import './aside.scss'
-
 
 const SubMenu = Menu.SubMenu
 
 const Aside = (props: any) => {
-
-
   const rootSubmenuKeys = [
     'home',
     'article_mange',
@@ -18,7 +25,7 @@ const Aside = (props: any) => {
     'dynamic',
     'user_manger',
     'web',
-    'admin'
+    'admin',
   ]
 
   const [asideItemList] = useState([
@@ -26,165 +33,165 @@ const Aside = (props: any) => {
       title: '主页',
       key: 'index',
       icon: <PieChartOutlined />,
-      link: '/manager/index'
+      link: '/manager/index',
     },
     {
       title: '文章管理',
       key: 'article_mange',
-      icon: <PieChartOutlined />,
+      icon: <FileTextOutlined />,
       children: [
         {
           title: '文章汇总',
           key: 'article',
-          link: '/manager/article'
+          link: '/manager/article',
         },
         {
           title: '个人专栏',
           key: 'articleBlog',
-          link: '/manager/article-blog'
+          link: '/manager/article-blog',
         },
         {
           title: '文章标签',
           key: 'article_tag',
-          link: '/manager/article-tag'
+          link: '/manager/article-tag',
         },
         {
           title: '文章专栏',
           key: 'article_column',
-          link: '/manager/article-column'
+          link: '/manager/article-column',
         },
         {
           title: '文章评论管理',
           key: 'articleComment',
-          link: '/manager/article-comment'
-        }
-      ]
+          link: '/manager/article-comment',
+        },
+      ],
     },
     {
       title: '动态管理',
       key: 'dynamic',
-      icon: <PieChartOutlined />,
+      icon: <MessageOutlined />,
       children: [
         {
           title: '动态汇总',
           key: 'dynamics',
-          link: '/manager/dynamic'
+          link: '/manager/dynamic',
         },
         {
           title: '动态话题',
           key: 'dynamicTopic',
-          link: '/manager/dynamic-topic'
+          link: '/manager/dynamic-topic',
         },
         {
           title: '动态评论',
           key: 'dynamicComment',
-          link: '/manager/dynamic-comment'
-        }
-      ]
+          link: '/manager/dynamic-comment',
+        },
+      ],
     },
     {
       title: '小书管理',
       key: 'bookManager',
-      icon: <PieChartOutlined />,
+      icon: <ReadOutlined />,
       children: [
         {
           title: '小书',
           key: 'books',
-          link: '/manager/books'
+          link: '/manager/books',
         },
         {
           title: '小书章节',
           key: 'book',
-          link: '/manager/book'
+          link: '/manager/book',
         },
         {
           title: '小书评论',
           key: 'booksComment',
-          link: '/manager/books-comment'
+          link: '/manager/books-comment',
         },
         {
           title: '小书章节评论',
           key: 'bookComment',
-          link: '/manager/book-comment'
-        }
-      ]
+          link: '/manager/book-comment',
+        },
+      ],
     },
     {
       title: '用户管理',
       key: 'user_manger',
-      icon: <PieChartOutlined />,
+      icon: <TeamOutlined />,
       children: [
         {
           title: '用户管理',
           key: 'user',
-          link: '/manager/user'
+          link: '/manager/user',
         },
         {
           title: '用户角色',
           key: 'user_role',
-          link: '/manager/user-role'
+          link: '/manager/user-role',
         },
         {
           title: '用户权限',
           key: 'user_authority',
-          link: '/manager/user-authority'
+          link: '/manager/user-authority',
         },
         {
           title: '用户头像审核',
           key: 'user_avatar_review',
-          link: '/manager/user-avatar-review'
-        }
-      ]
+          link: '/manager/user-avatar-review',
+        },
+      ],
     },
     {
       title: '网站管理',
       key: 'web',
-      icon: <PieChartOutlined />,
+      icon: <ChromeOutlined />,
       children: [
         {
           title: '网站配置',
           key: 'website_config',
-          link: '/manager/website-config'
+          link: '/manager/website-config',
         },
         {
           title: '图库',
           key: 'picture',
-          link: '/manager/picture'
-        }
-      ]
+          link: '/manager/picture',
+        },
+      ],
     },
     {
       title: '系统管理',
       key: 'admin',
-      icon: <PieChartOutlined />,
+      icon: <ControlOutlined />,
       children: [
         {
           title: '管理员管理',
           key: 'admin_user',
-          link: '/manager/admin-user'
+          link: '/manager/admin-user',
         },
         {
           title: '角色管理',
           key: 'admin_role',
-          link: '/manager/admin-role'
+          link: '/manager/admin-role',
         },
         {
           title: '权限菜单',
           key: 'admin_authority',
-          link: '/manager/admin-authority'
+          link: '/manager/admin-authority',
         },
         {
           title: '系统配置',
           key: 'system_config',
-          link: '/manager/system-config'
+          link: '/manager/system-config',
         },
         {
           title: '系统日志',
           key: 'admin_system_log',
-          link: '/manager/admin-system-log'
-        }
-      ]
-    }
+          link: '/manager/admin-system-log',
+        },
+      ],
+    },
   ])
   const [isMobile, setIsMobile] = useState(false)
   const [openKeys, setOpenKeys] = useState(['web'])
@@ -223,16 +230,12 @@ const Aside = (props: any) => {
         <div className="admin-aside-header">
           <Link className="admin-logo-view" to="/manager/index">
             <HeatMapOutlined className="login-icon" />
-            <span className="logo-text">
-              {website.website_name}
-            </span>
+            <span className="logo-text">{website.website_name}</span>
           </Link>
         </div>
 
         <div className="admin-aside-content clearfix">
-          <ScrollBar
-            option={{ suppressScrollX: true }}
-          >
+          <ScrollBar option={{ suppressScrollX: true }}>
             <Menu
               defaultOpenKeys={['web']}
               openKeys={openKeys}
