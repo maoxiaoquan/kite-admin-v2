@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import {
-  Menu,
-  Avatar,
-  Layout,
-  Button
-} from 'antd'
+import { Menu, Avatar, Layout, Button } from 'antd'
 import './header.scss'
-import { useNavigate } from 'react-router-dom';
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom'
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 const SubMenu = Menu.SubMenu
 
 const { Header } = Layout
 
 const HeaderBox = (props: any) => {
-
   const [current, setCurrent] = useState()
   const [collapsed, setCollapsed] = useState(props.collapsed)
 
@@ -25,33 +19,26 @@ const HeaderBox = (props: any) => {
     setCurrent(e.key)
   }
 
-  let navigate = useNavigate();
+  let navigate = useNavigate()
 
   const escLogin = () => {
-    localStorage.box_tokens = ''
+    localStorage.kiteToken = ''
     navigate('/sign-in')
   }
 
-  const {
-    onCollapseChange,
-    adminUserInfo
-  } = props
-
+  const { onCollapseChange, adminUserInfo } = props
 
   return (
-    <Header
-      className={`k-header ${collapsed ? 'collapsed' : ''}`}
-    >
+    <Header className={`k-header ${collapsed ? 'collapsed' : ''}`}>
       <div className="clearfix">
         <div className="pull-left">
-          <Button onClick={() => onCollapseChange(!collapsed)} icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}></Button>
+          <Button
+            onClick={() => onCollapseChange(!collapsed)}
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          ></Button>
         </div>
         <div className="pull-right">
-          <Menu
-            onClick={topMenuClick}
-            selectedKeys={current}
-            mode="horizontal"
-          >
+          <Menu onClick={topMenuClick} selectedKeys={current} mode="horizontal">
             <Menu.Item key="alipay" />
             <SubMenu
               title={
