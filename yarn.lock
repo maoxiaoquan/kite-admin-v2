@@ -5224,10 +5224,10 @@ hex-color-regex@^1.1.0:
   resolved "https://registry.yarnpkg.com/hex-color-regex/-/hex-color-regex-1.1.0.tgz#4c06fccb4602fe2602b3c93df82d7e7dbf1a8a8e"
   integrity sha512-l9sfDFsuqtOqKDsQdqrMRk0U85RZc0RtOR9yPI7mRVOa4FsR/BVnZ0shmQRM96Ji99kYZP/7hn1cedc1+ApsTQ==
 
-history@5.0.0-beta.9:
-  version "5.0.0-beta.9"
-  resolved "https://registry.yarnpkg.com/history/-/history-5.0.0-beta.9.tgz#fe230706c18c5f7f132001e55215e71b4aaab6d6"
-  integrity sha512-iLpu0fzu3iM041KDMNsawyB6YZjPLB+Bn+Pvq2lMnY7xxpxDIYvEz7r4et3Na8FthWzbYeukjl74ZKGWXcLhIA==
+history@^5.0.0, history@^5.2.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/history/-/history-5.3.0.tgz#1548abaa245ba47992f063a0783db91ef201c73b"
+  integrity sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==
   dependencies:
     "@babel/runtime" "^7.7.6"
 
@@ -7226,9 +7226,9 @@ mkdirp@^0.5.1, mkdirp@^0.5.3, mkdirp@~0.5.1:
     minimist "^1.2.5"
 
 moment@^2.24.0:
-  version "2.24.0"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
-  integrity sha512-bV7f+6l2QigeBBZSM/6yTNq4P2fNpSWj/0e7jQcy87A8e7o2nAfP/34/2ky5Vw4B9S446EtIhodAzkFCcR4dQg==
+  version "2.29.4"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
+  integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
 
 move-concurrently@^1.0.1:
   version "1.0.1"
@@ -9465,21 +9465,20 @@ react-perfect-scrollbar@^1.5.8:
     perfect-scrollbar "^1.5.0"
     prop-types "^15.6.1"
 
-react-router-dom@^6.0.0-alpha.4:
-  version "6.0.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.0.0-alpha.5.tgz#3c3e22226ee610eb91042a351741ce3f53596323"
-  integrity sha512-xo3VM55aE563uyZBPoUplfCPOYKJmTP2oA8wamm0k4K07e/6T4x4DDunS5Gu2VIy+m2+5mZp8n0rT6S+tYCb6Q==
+react-router-dom@^6.0.0-beta.0:
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.3.0.tgz#a0216da813454e521905b5fa55e0e5176123f43d"
+  integrity sha512-uaJj7LKytRxZNQV8+RbzJWnJ8K2nPsOOEuX7aQstlMZKQT0164C+X2w6bnkqU3sjtLvpd5ojrezAyfZ1+0sStw==
   dependencies:
-    history "5.0.0-beta.9"
-    prop-types "^15.7.2"
+    history "^5.2.0"
+    react-router "6.3.0"
 
-react-router@^6.0.0-alpha.4:
-  version "6.0.0-alpha.5"
-  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.0.0-alpha.5.tgz#c98805e50dc0e64787aa8aa4fa6753b435f2496b"
-  integrity sha512-cDj70bTUAgcfx6b5Fx1+wVlBSDVZGo8N+GUDk/yNFDCyGLfAsFlRpS3BhQqx8c49w2cCW+OrXxFhB4cbLZxWJw==
+react-router@6.3.0, react-router@^6.0.0-beta.0:
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.3.0.tgz#3970cc64b4cb4eae0c1ea5203a80334fdd175557"
+  integrity sha512-7Wh1DzVQ+tlFjkeo+ujvjSqSJmkt1+8JO+T5xklPlgrh70y7ogx75ODRW0ThWhY7S+6yEDks8TYrtQe/aoboBQ==
   dependencies:
-    history "5.0.0-beta.9"
-    prop-types "^15.7.2"
+    history "^5.2.0"
 
 react-scripts@3.4.1:
   version "3.4.1"
