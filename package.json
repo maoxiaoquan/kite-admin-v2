@@ -19,7 +19,7 @@
     "customize-cra": "^0.9.1",
     "history": "^5.0.0",
     "node-sass": "^4.13.1",
-    "qs": "^6.9.3",
+    "qs": "^6.9.7",
     "react": "^16.13.1",
     "react-app-rewired": "^2.1.5",
     "react-dom": "^16.13.1",
